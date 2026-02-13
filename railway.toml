@@ -1,6 +1,6 @@
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+dockerfilePath = "apps/backend/Dockerfile"
 
 [deploy]
 healthcheckPath = "/api/v1"

@@ -10,6 +10,7 @@
 - **MVP 시장:** 한국 → 일본 (도쿄, 오사카, 교토, 후쿠오카, 삿포로, 오키나와)
 - **핵심 가치:** 가성비, 현장성, 지능
 - **기술 스택:** NestJS / PostgreSQL+PostGIS / React PWA / LLM API
+- **레포 구조:** pnpm workspace 모노레포 (`apps/backend`, `apps/frontend`, `packages/shared`)
 - **인프라:** Vercel(Frontend, $0) + Railway Hobby(Backend+DB, $5/월)
 - **외부 API:** Amadeus(항공검색) + Kiwi(딥링크) + Agoda/Booking(숙소) + OSM+Google(POI)
 - **PRD:** @plans/001-prd.md
