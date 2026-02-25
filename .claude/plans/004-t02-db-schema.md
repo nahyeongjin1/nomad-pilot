@@ -293,6 +293,6 @@ apps/backend/src/
 
 ### Step 6: 문서 최신화
 
-- CLAUDE.md: T02 ✅ + ADR (예산 정규화, POI 네이밍, SnakeNamingStrategy, 환율 스냅샷)
+- CLAUDE.md: T02 ✅ + ADR (예산 정규화, POI 네이밍, SnakeNamingStrategy, 환율 스냅샷, Trip 삭제 정책)
 
 ---
