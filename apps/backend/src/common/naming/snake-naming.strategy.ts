@@ -27,7 +27,7 @@ export class SnakeNamingStrategy
     relationName: string,
     referencedColumnName: string,
   ): string {
-    return toSnakeCase(relationName) + '_' + referencedColumnName;
+    return toSnakeCase(relationName) + '_' + toSnakeCase(referencedColumnName);
   }
 
   override joinTableColumnName(
@@ -38,7 +38,7 @@ export class SnakeNamingStrategy
     return (
       toSnakeCase(tableName) +
       '_' +
-      (columnName ? columnName : toSnakeCase(propertyName))
+      (columnName ? toSnakeCase(columnName) : toSnakeCase(propertyName))
     );
   }
 

@@ -70,8 +70,8 @@
 # 1. DB 기동
 docker compose up -d
 
-# 2. 마이그레이션 (빌드 후 실행)
-pnpm build && pnpm migration:run
+# 2. 마이그레이션 (premigration 훅이 자동 빌드)
+pnpm migration:run
 
 # 3. 개발 서버
 pnpm start:dev    # http://localhost:3000/api/v1

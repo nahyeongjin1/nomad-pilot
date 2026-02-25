@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   Entity,
   Index,
@@ -14,6 +15,13 @@ import { BudgetAllocation } from './budget-allocation.entity.js';
 import { TripDay } from './trip-day.entity.js';
 
 @Entity('trips')
+@Check('CHK_trips_budget', '"total_budget_krw" >= 0')
+@Check('CHK_trips_month', '"travel_month" BETWEEN 1 AND 12')
+@Check('CHK_trips_duration', '"duration_days" >= 1')
+@Check(
+  'CHK_trips_dates',
+  '"end_date" IS NULL OR "start_date" IS NULL OR "end_date" >= "start_date"',
+)
 export class Trip extends BaseEntity {
   @ManyToOne(() => User, (user) => user.trips, { onDelete: 'CASCADE' })
   @JoinColumn()

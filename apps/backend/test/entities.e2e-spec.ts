@@ -45,24 +45,17 @@ describe('Entity Integration Tests', () => {
     await app.close();
   });
 
-  // Clean up test data before and after each test
-  beforeEach(async () => {
+  const cleanupTestData = async () => {
     await dataSource.query(
       'TRUNCATE "trip_day_pois", "trip_days", "budget_allocations", "trips", "pois" CASCADE',
     );
     await dataSource.query(
       `DELETE FROM "users" WHERE "email" LIKE '%@test.com'`,
     );
-  });
+  };
 
-  afterEach(async () => {
-    await dataSource.query(
-      'TRUNCATE "trip_day_pois", "trip_days", "budget_allocations", "trips", "pois" CASCADE',
-    );
-    await dataSource.query(
-      `DELETE FROM "users" WHERE "email" LIKE '%@test.com'`,
-    );
-  });
+  beforeEach(cleanupTestData);
+  afterEach(cleanupTestData);
 
   describe('User', () => {
     it('should create and retrieve a user', async () => {

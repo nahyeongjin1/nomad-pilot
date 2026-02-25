@@ -16,7 +16,7 @@ T01에서 NestJS + TypeORM + PostGIS 기반이 완성됨. 이제 MVP에 필요�
 ```text
 users (soft delete)
   │
-  ├──< trips (soft delete)
+  ├──< trips (hard delete)
   │      ├── city ─── cities
   │      ├──< budget_allocations
   │      └──< trip_days
@@ -127,7 +127,6 @@ City는 curated 참조 데이터 → `nameKo`/`nameEn`/`nameLocal` 3컬럼.
 | startDate      | date            | nullable                |
 | endDate        | date            | nullable                |
 | shareToken     | varchar(21)     | nullable, unique        |
-| deletedAt      | timestamp       | soft delete             |
 
 ### 5. BudgetAllocation
 
@@ -297,22 +296,3 @@ apps/backend/src/
 - CLAUDE.md: T02 ✅ + ADR (예산 정규화, POI 네이밍, SnakeNamingStrategy, 환율 스냅샷)
 
 ---
-
-## 수정 대상 파일
-
-| 파일                                           | 변경                     |
-| ---------------------------------------------- | ------------------------ |
-| `apps/backend/src/database/database.module.ts` | SnakeNamingStrategy 추가 |
-| `apps/backend/src/database/data-source.ts`     | SnakeNamingStrategy 추가 |
-| `apps/backend/src/app.module.ts`               | 4개 도메인 모듈 import   |
-| `.claude/CLAUDE.md`                            | T02 상태 + ADR           |
-
-## 생성 파일 (19개)
-
-- common/: base.entity.ts, snake-naming.strategy.ts, enums/ (4개 + index.ts)
-- users/: user.entity.ts, users.module.ts
-- cities/: city.entity.ts, cities.module.ts
-- pois/: poi.entity.ts, pois.module.ts
-- trips/: trip.entity.ts, budget-allocation.entity.ts, trip-day.entity.ts, trip-day-poi.entity.ts, trips.module.ts
-- database/migrations/: 자동 CreateSchema, 수동 SeedJapaneseCities
-- plans/004-t02-db-schema.md

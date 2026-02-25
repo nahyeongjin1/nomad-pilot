@@ -1,4 +1,5 @@
 import {
+  Check,
   Column,
   Entity,
   Index,
@@ -13,6 +14,14 @@ import { PoiCategory, PoiSource } from '../../common/enums/index.js';
 import { TripDayPoi } from '../../trips/entities/trip-day-poi.entity.js';
 
 @Entity('pois')
+@Check(
+  'CHK_pois_rating',
+  '"rating" IS NULL OR ("rating" >= 0 AND "rating" <= 5)',
+)
+@Check(
+  'CHK_pois_price_level',
+  '"price_level" IS NULL OR ("price_level" BETWEEN 1 AND 4)',
+)
 @Index('UQ_pois_source_source_id', ['source', 'sourceId'], {
   unique: true,
   where: '"source_id" IS NOT NULL',

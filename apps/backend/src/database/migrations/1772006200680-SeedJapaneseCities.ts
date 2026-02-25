@@ -16,7 +16,15 @@ export class SeedJapaneseCities1772006200680 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-      DELETE FROM "cities" WHERE "country_code" = 'JP'
+      DELETE FROM "cities"
+      WHERE ("country_code", "name_en") IN (
+        ('JP', 'Tokyo'),
+        ('JP', 'Osaka'),
+        ('JP', 'Kyoto'),
+        ('JP', 'Fukuoka'),
+        ('JP', 'Sapporo'),
+        ('JP', 'Naha')
+      )
     `);
   }
 }
