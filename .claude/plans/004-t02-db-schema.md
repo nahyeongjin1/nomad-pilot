@@ -141,7 +141,7 @@ City는 curated 참조 데이터 → `nameKo`/`nameEn`/`nameLocal` 3컬럼.
 | isEstimated  | boolean             | default true               |
 
 - Unique composite: `(tripId, category)`
-- `exchangeRate`: 환산 시점의 환율 스냅샷 (예: KRW→JPY = 0.1087). KRW 항목은 환전 불필요하므로 null.
+- `exchangeRate`: 환산 시점의 환율 스냅샷 (예: JPY→KRW = 9.2). amount × exchangeRate = KRW 환산액. KRW 항목은 환전 불필요하므로 null.
 
 ### 6. TripDay
 
