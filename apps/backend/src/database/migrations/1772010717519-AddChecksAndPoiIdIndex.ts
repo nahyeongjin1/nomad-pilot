@@ -70,7 +70,7 @@ export class AddChecksAndPoiIdIndex1772010717519 implements MigrationInterface {
             ALTER TABLE "pois" DROP CONSTRAINT "CHK_pois_price_level"
         `);
     await queryRunner.query(`
-            DROP INDEX "public"."IDX_ce15dd92e8ac39e231614e4331"
+            DROP INDEX "IDX_ce15dd92e8ac39e231614e4331"
         `);
   }
 }

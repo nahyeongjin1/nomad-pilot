@@ -177,7 +177,7 @@ City는 curated 참조 데이터 → `nameKo`/`nameEn`/`nameLocal` 3컬럼.
 
 | 부모 → 자식                     | onDelete | 이유                                              |
 | ------------------------------- | -------- | ------------------------------------------------- |
-| User → Trip                     | CASCADE  | 하드 삭제 시 여행도 삭제 (일반적으로 soft delete) |
+| User → Trip                     | CASCADE  | User는 soft delete 사용, 하드 삭제 시 여행도 삭제 |
 | City → Trip/Poi                 | RESTRICT | 참조 중인 도시 삭제 방지                          |
 | Trip → BudgetAllocation/TripDay | CASCADE  | 여행 삭제 시 하위 데이터도 삭제                   |
 | TripDay → TripDayPoi            | CASCADE  | 일자 삭제 시 방문 기록도 삭제                     |
