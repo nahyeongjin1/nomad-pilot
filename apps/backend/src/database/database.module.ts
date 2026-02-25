@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
+import { SnakeNamingStrategy } from '../common/naming/snake-naming.strategy.js';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ConfigService } from '@nestjs/config';
               }),
           autoLoadEntities: true,
           synchronize: false,
+          namingStrategy: new SnakeNamingStrategy(),
           logging: configService.get<string>('NODE_ENV') === 'development',
           ssl:
             configService.get<string>('NODE_ENV') === 'production'

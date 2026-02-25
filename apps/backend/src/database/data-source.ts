@@ -1,5 +1,6 @@
 import { DataSource, DataSourceOptions } from 'typeorm';
 import 'dotenv/config';
+import { SnakeNamingStrategy } from '../common/naming/snake-naming.strategy.js';
 
 const databaseUrl = process.env.DATABASE_URL;
 
@@ -17,6 +18,7 @@ export const dataSourceOptions: DataSourceOptions = {
   entities: ['dist/**/*.entity.js'],
   migrations: ['dist/database/migrations/*.js'],
   synchronize: false,
+  namingStrategy: new SnakeNamingStrategy(),
   logging: process.env.NODE_ENV === 'development',
   ssl:
     process.env.NODE_ENV === 'production'

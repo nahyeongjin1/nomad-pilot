@@ -4,6 +4,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from './config/config.module';
 import { DatabaseModule } from './database/database.module';
+import { UsersModule } from './users/users.module';
+import { CitiesModule } from './cities/cities.module';
+import { PoisModule } from './pois/pois.module';
+import { TripsModule } from './trips/trips.module';
 
 @Module({
   imports: [
@@ -18,6 +22,10 @@ import { DatabaseModule } from './database/database.module';
       },
     }),
     DatabaseModule,
+    UsersModule,
+    CitiesModule,
+    PoisModule,
+    TripsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
