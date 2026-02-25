@@ -20,84 +20,33 @@
 
 ## 태스크 추적
 
-각 태스크의 상세 계획은 `plans/` 폴더에서 관리.
-상태: ⬜ 미착수 | 🔄 진행중 | ✅ 완료
-
-### Foundation
-
-| ID  | 태스크                                | 상태 | 계획서                          |
-| --- | ------------------------------------- | ---- | ------------------------------- |
-| T01 | 프로젝트 초기 설정 (NestJS + Railway) | ✅   | @plans/003-t01-project-setup.md |
-| T02 | DB 스키마 설계 (PostGIS)              | ⬜   | -                               |
-| T03 | 공간 쿼리 최적화 전략                 | ⬜   | -                               |
-
-### Search & Data
-
-| ID  | 태스크                           | 상태 | 계획서 |
-| --- | -------------------------------- | ---- | ------ |
-| T04 | POI 검색 설계 (tsvector + GIN)   | ⬜   | -      |
-| T05 | 일본 POI 데이터 파이프라인       | ⬜   | -      |
-| T06 | 외부 API 연동 (항공/숙소/딥링크) | ⬜   | -      |
-
-### Core Engine
-
-| ID  | 태스크               | 상태 | 계획서 |
-| --- | -------------------- | ---- | ------ |
-| T07 | 예산 분배 로직       | ⬜   | -      |
-| T08 | 경로 최적화 알고리즘 | ⬜   | -      |
-| T09 | 숙소 위치 추천 로직  | ⬜   | -      |
-| T10 | 주변 POI 추천 로직   | ⬜   | -      |
-| T11 | AI Integration       | ⬜   | -      |
-
-### 여행 중 지원
-
-| ID  | 태스크                 | 상태 | 계획서 |
-| --- | ---------------------- | ---- | ------ |
-| T12 | 일정 재스케줄링 엔진   | ⬜   | -      |
-| T13 | Client Geofencing 설계 | ⬜   | -      |
-| T14 | Web Push 알림 설계     | ⬜   | -      |
-
-### Frontend
-
-| ID  | 태스크          | 상태 | 계획서 |
-| --- | --------------- | ---- | ------ |
-| T15 | PWA 설계        | ⬜   | -      |
-| T16 | 지도 UI/UX 설계 | ⬜   | -      |
-
-### Monetization
-
-| ID  | 태스크                    | 상태 | 계획서 |
-| --- | ------------------------- | ---- | ------ |
-| T17 | 인증/결제 시스템          | ⬜   | -      |
-| T18 | Pilot Pass 기능 게이팅    | ⬜   | -      |
-| T19 | 딥링크/제휴 수수료 트래킹 | ⬜   | -      |
-
-### Infra & DevOps
-
-| ID  | 태스크                                  | 상태 | 계획서 |
-| --- | --------------------------------------- | ---- | ------ |
-| T20 | 배포 아키텍처 (Vercel + Railway, CI/CD) | ⬜   | -      |
+@plans/000-task-tracker.md
 
 ---
 
 ## 의사결정 로그 (ADR)
 
-| 날짜       | 결정                        | 근거                                                                               |
-| ---------- | --------------------------- | ---------------------------------------------------------------------------------- |
-| 2026-02-12 | 서빙 형식: PWA              | 진입장벽 최소화, 오프라인 지원, 해외 즉시 접근                                     |
-| 2026-02-12 | 문서 관리: .claude/ 내부    | 코드와 문서 분리, 태스크별 plans/ 관리, CLAUDE.md 허브 방식                        |
-| 2026-02-12 | 방향: 최저가 여행 파일럿    | 가치 제안 명확화, 타겟 확장, 수익화 경로 다양화                                    |
-| 2026-02-12 | MVP 1인 여행 고정           | 그룹 복잡도 회피, DB 확장 가능 설계, 그룹은 Phase 3 유료                           |
-| 2026-02-12 | WebSocket 전면 제거         | REST + Web Push + Client Geofencing 대체. 해외 데이터 절약                         |
-| 2026-02-12 | 동행자 위치: 1회 조회 방식  | 실시간 불필요, REST 조회로 충분                                                    |
-| 2026-02-12 | 인프라: Vercel + Railway    | Frontend $0 + Backend/DB $5/월. NestJS 학습 목적 유지                              |
-| 2026-02-12 | MVP DB 단일화: PostgreSQL만 | ES/Redis 스케일링 시 도입. tsvector+GIN 텍스트 검색, PostGIS 공간 검색             |
-| 2026-02-12 | MVP 일본 한정               | 한국인 해외여행 1위, OSM 품질 우수, 스코프 축소. @plans/002-feasibility-study.md   |
-| 2026-02-12 | 항공: Amadeus + Kiwi        | Amadeus(검색) + Kiwi(딥링크 3%). @plans/002-feasibility-study.md §1                |
-| 2026-02-12 | POI: OSM + Google Places    | OSM(기본, 무료) + Google(on-demand). @plans/002-feasibility-study.md §3            |
-| 2026-02-12 | 개발 방식: TDD              | 테스트 먼저 작성 → 구현 → 리팩터. 모든 서비스/로직에 테스트 필수                   |
-| 2026-02-12 | Git: GitHub Flow            | main + feat/fix 브랜치. 태스크 단위 브랜치 → main 머지. develop 불필요 (1인 MVP)   |
-| 2026-02-12 | 로깅: Pino (nestjs-pino)    | JSON 네이티브, 요청별 자동 로깅. dev: pino-pretty, prod: JSON. Railway stdout 수집 |
+| 날짜       | 결정                             | 근거                                                                               |
+| ---------- | -------------------------------- | ---------------------------------------------------------------------------------- |
+| 2026-02-12 | 서빙 형식: PWA                   | 진입장벽 최소화, 오프라인 지원, 해외 즉시 접근                                     |
+| 2026-02-12 | 문서 관리: .claude/ 내부         | 코드와 문서 분리, 태스크별 plans/ 관리, CLAUDE.md 허브 방식                        |
+| 2026-02-12 | 방향: 최저가 여행 파일럿         | 가치 제안 명확화, 타겟 확장, 수익화 경로 다양화                                    |
+| 2026-02-12 | MVP 1인 여행 고정                | 그룹 복잡도 회피, DB 확장 가능 설계, 그룹은 Phase 3 유료                           |
+| 2026-02-12 | WebSocket 전면 제거              | REST + Web Push + Client Geofencing 대체. 해외 데이터 절약                         |
+| 2026-02-12 | 동행자 위치: 1회 조회 방식       | 실시간 불필요, REST 조회로 충분                                                    |
+| 2026-02-12 | 인프라: Vercel + Railway         | Frontend $0 + Backend/DB $5/월. NestJS 학습 목적 유지                              |
+| 2026-02-12 | MVP DB 단일화: PostgreSQL만      | ES/Redis 스케일링 시 도입. tsvector+GIN 텍스트 검색, PostGIS 공간 검색             |
+| 2026-02-12 | MVP 일본 한정                    | 한국인 해외여행 1위, OSM 품질 우수, 스코프 축소. @plans/002-feasibility-study.md   |
+| 2026-02-12 | 항공: Amadeus + Kiwi             | Amadeus(검색) + Kiwi(딥링크 3%). @plans/002-feasibility-study.md §1                |
+| 2026-02-12 | POI: OSM + Google Places         | OSM(기본, 무료) + Google(on-demand). @plans/002-feasibility-study.md §3            |
+| 2026-02-12 | 개발 방식: TDD                   | 테스트 먼저 작성 → 구현 → 리팩터. 모든 서비스/로직에 테스트 필수                   |
+| 2026-02-12 | Git: GitHub Flow                 | main + feat/fix 브랜치. 태스크 단위 브랜치 → main 머지. develop 불필요 (1인 MVP)   |
+| 2026-02-12 | 로깅: Pino (nestjs-pino)         | JSON 네이티브, 요청별 자동 로깅. dev: pino-pretty, prod: JSON. Railway stdout 수집 |
+| 2026-02-25 | 예산: 정규화 테이블              | budget_allocations 별도 테이블. 다통화/다국가 확장 대비. 환율 스냅샷 저장          |
+| 2026-02-25 | POI 이름: name+nameLocal+locale  | 표시용(name) + 현지어(nameLocal) + 로케일. City는 curated라 3컬럼(ko/en/local)     |
+| 2026-02-25 | DB 네이밍: SnakeNamingStrategy   | 커스텀 구현 (~30줄). TypeORM camelCase → PostgreSQL snake_case 자동 변환           |
+| 2026-02-25 | 삭제 전략: User만 soft delete    | Trip은 hard delete + status로 비즈니스 상태 관리. email unique 제약 유지           |
+| 2026-02-25 | 마이그레이션 CLI: dist 경로 사용 | ts-node의 .js→.ts 리졸브 문제 회피. 빌드 후 dist/ 참조                             |
 
 ---
 
@@ -109,6 +58,7 @@
 - **브랜치 전략:** GitHub Flow (`main` + `feat|fix/*` 브랜치)
 - **브랜치 네이밍:** `feat/t{번호}-{설명}` 또는 `fix/{설명}` (예: `feat/t02-db-schema`)
 - **커밋 컨벤션:** Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`)
+- **PR 작성:** `.github/PULL_REQUEST_TEMPLATE.md` 포맷을 따른다
 
 ---
 
@@ -120,8 +70,8 @@
 # 1. DB 기동
 docker compose up -d
 
-# 2. 마이그레이션 (빌드 후 실행)
-pnpm build && pnpm migration:run
+# 2. 마이그레이션 (premigration 훅이 자동 빌드)
+pnpm migration:run
 
 # 3. 개발 서버
 pnpm start:dev    # http://localhost:3000/api/v1
