@@ -47,6 +47,7 @@
 | 2026-02-25 | DB 네이밍: SnakeNamingStrategy   | 커스텀 구현 (~30줄). TypeORM camelCase → PostgreSQL snake_case 자동 변환           |
 | 2026-02-25 | 삭제 전략: User만 soft delete    | Trip은 hard delete + status로 비즈니스 상태 관리. email unique 제약 유지           |
 | 2026-02-25 | 마이그레이션 CLI: dist 경로 사용 | ts-node의 .js→.ts 리졸브 문제 회피. 빌드 후 dist/ 참조                             |
+| 2026-02-25 | PR 머지: squash + 브랜치 삭제    | main 히스토리 깔끔 유지. 머지 후 feature 브랜치 즉시 삭제                          |
 
 ---
 
