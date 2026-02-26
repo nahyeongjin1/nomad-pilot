@@ -327,19 +327,11 @@ function transformElements(
 // Batch insert into DB
 // ---------------------------------------------------------------------------
 
-function escapeArrayLiteral(tags: string[]): string {
-  if (tags.length === 0) return '{}';
-  const escaped = tags.map(
-    (t) => `"${t.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`,
-  );
-  return `{${escaped.join(',')}}`;
-}
-
 async function insertPois(client: Client, pois: PoiInsert[]): Promise<number> {
   if (pois.length === 0) return 0;
 
   let inserted = 0;
-  const PARAMS_PER_ROW = 12;
+  const PARAMS_PER_ROW = 13;
 
   for (let i = 0; i < pois.length; i += BATCH_SIZE) {
     const batch = pois.slice(i, i + BATCH_SIZE);
@@ -353,7 +345,7 @@ async function insertPois(client: Client, pois: PoiInsert[]): Promise<number> {
         `($${off + 1}, $${off + 2}, $${off + 3}, ` +
           `ST_SetSRID(ST_MakePoint($${off + 4}, $${off + 5}), 4326)::geography, ` +
           `$${off + 6}::pois_category_enum, $${off + 7}, $${off + 8}, ` +
-          `$${off + 9}, $${off + 10}::pois_source_enum, $${off + 11}, $${off + 12})`,
+          `$${off + 9}::text[], $${off + 10}::pois_source_enum, $${off + 11}, $${off + 12}, $${off + 13})`,
       );
       values.push(
         poi.cityId, // $1  city_id
@@ -364,15 +356,16 @@ async function insertPois(client: Client, pois: PoiInsert[]): Promise<number> {
         poi.category, // $6  category
         poi.subCategory, // $7  sub_category
         poi.sourceId, // $8  source_id
-        escapeArrayLiteral(poi.tags), // $9 tags
+        poi.tags, // $9  tags (pg natively serializes JS arrays)
         'osm', // $10 source
         'ja', // $11 locale
         true, // $12 is_active
+        poi.address, // $13 address
       );
     }
 
     const sql = `
-      INSERT INTO pois (city_id, name, name_local, location, category, sub_category, source_id, tags, source, locale, is_active)
+      INSERT INTO pois (city_id, name, name_local, location, category, sub_category, source_id, tags, source, locale, is_active, address)
       VALUES ${placeholders.join(',\n             ')}
       ON CONFLICT (source, source_id) WHERE source_id IS NOT NULL DO NOTHING
     `;
