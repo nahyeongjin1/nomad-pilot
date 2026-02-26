@@ -26,7 +26,9 @@ import 'dotenv/config';
 
 const OVERPASS_URL = 'https://overpass-api.de/api/interpreter';
 const BATCH_SIZE = 500;
-const OVERPASS_DELAY_MS = 2000; // Overpass courtesy delay between requests
+// Overpass API: < 10,000 queries/day. Our queries are heavy (22 subqueries each),
+// so 15s between cities is conservative enough to avoid 429.
+const OVERPASS_DELAY_MS = 15_000;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -320,8 +322,8 @@ async function insertPois(client: Client, pois: PoiInsert[]): Promise<number> {
       placeholders.push(
         `($${off + 1}, $${off + 2}, $${off + 3}, ` +
           `ST_SetSRID(ST_MakePoint($${off + 4}, $${off + 5}), 4326)::geography, ` +
-          `$${off + 6}::poi_category_enum, $${off + 7}, $${off + 8}, ` +
-          `$${off + 9}, $${off + 10}::poi_source_enum, $${off + 11}, $${off + 12})`,
+          `$${off + 6}::pois_category_enum, $${off + 7}, $${off + 8}, ` +
+          `$${off + 9}, $${off + 10}::pois_source_enum, $${off + 11}, $${off + 12})`,
       );
       values.push(
         poi.cityId, // $1  city_id
@@ -398,6 +400,19 @@ async function seed(): Promise<void> {
       const bbox = CITY_BBOX[city.name_en];
       if (!bbox) {
         console.log(`  Skipping ${city.name_en}: no bbox defined`);
+        continue;
+      }
+
+      // Skip cities that already have POI data
+      const existing = await client.query<{ count: string }>(
+        `SELECT COUNT(*)::text as count FROM pois WHERE city_id = $1`,
+        [city.id],
+      );
+      const existingCount = parseInt(existing.rows[0]?.count ?? '0', 10);
+      if (existingCount > 0) {
+        console.log(
+          `  ${city.name_en}: already has ${existingCount} POIs, skipping`,
+        );
         continue;
       }
 
