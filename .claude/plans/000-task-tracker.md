@@ -8,7 +8,7 @@
 | --- | ------------------------------------- | ---- | ------------------------------- |
 | T01 | 프로젝트 초기 설정 (NestJS + Railway) | ✅   | @plans/003-t01-project-setup.md |
 | T02 | DB 스키마 설계 (PostGIS)              | ✅   | @plans/004-t02-db-schema.md     |
-| T03 | 공간 쿼리 최적화 전략                 | ⬜   | -                               |
+| T03 | 공간 쿼리 최적화 전략                 | ✅   | @plans/005-t03-spatial-query.md |
 
 ## Search & Data
 

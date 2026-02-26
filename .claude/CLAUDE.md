@@ -48,6 +48,9 @@
 | 2026-02-25 | 삭제 전략: User만 soft delete    | Trip은 hard delete + status로 비즈니스 상태 관리. email unique 제약 유지           |
 | 2026-02-25 | 마이그레이션 CLI: dist 경로 사용 | ts-node의 .js→.ts 리졸브 문제 회피. 빌드 후 dist/ 참조                             |
 | 2026-02-25 | PR 머지: squash + 브랜치 삭제    | main 히스토리 깔끔 유지. 머지 후 feature 브랜치 즉시 삭제                          |
+| 2026-02-26 | 공간 쿼리: geography 타입 유지   | 1km 반경 20ms 이내 달성. geometry 전환 불필요. @plans/005-t03-spatial-query.md     |
+| 2026-02-26 | 공간 인덱스: 단일 GiST 유지      | GiST + 기존 B-tree 조합으로 충분. 복합 인덱스 불필요. 10만건 이상 시 재검토        |
+| 2026-02-26 | 반경 검색: 2km 이상 시 필터 필수 | 2km 무필터 262ms vs 필터 26ms. 서비스 레이어에서 category 필터 강제                |
 
 ---
 
