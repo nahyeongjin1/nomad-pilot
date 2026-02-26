@@ -210,22 +210,52 @@ async function fetchOverpassData(
   const query = buildOverpassQuery(bbox);
   console.log(`  Fetching ${cityName} (bbox: ${bbox})...`);
 
-  const response = await fetch(OVERPASS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: `data=${encodeURIComponent(query)}`,
-  });
+  const MAX_RETRIES = 3;
+  for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 120_000);
+    try {
+      const response = await fetch(OVERPASS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: `data=${encodeURIComponent(query)}`,
+        signal: controller.signal,
+      });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(
-      `Overpass API error for ${cityName}: ${response.status} - ${text.slice(0, 200)}`,
-    );
+      if (
+        (response.status === 429 || response.status >= 500) &&
+        attempt < MAX_RETRIES
+      ) {
+        console.log(
+          `  ${cityName}: HTTP ${response.status}, retry ${attempt}/${MAX_RETRIES}...`,
+        );
+        await new Promise((r) => setTimeout(r, OVERPASS_DELAY_MS * attempt));
+        continue;
+      }
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(
+          `Overpass API error for ${cityName}: ${response.status} - ${text.slice(0, 200)}`,
+        );
+      }
+
+      const data = (await response.json()) as OverpassResponse;
+      console.log(`  ${cityName}: ${data.elements.length} raw elements`);
+      return data.elements;
+    } catch (err) {
+      if (attempt === MAX_RETRIES) throw err;
+      console.log(
+        `  ${cityName}: fetch error, retry ${attempt}/${MAX_RETRIES}...`,
+      );
+      await new Promise((r) => setTimeout(r, OVERPASS_DELAY_MS * attempt));
+    } finally {
+      clearTimeout(timeout);
+    }
   }
-
-  const data = (await response.json()) as OverpassResponse;
-  console.log(`  ${cityName}: ${data.elements.length} raw elements`);
-  return data.elements;
+  throw new Error(
+    `Overpass fetch failed for ${cityName} after ${MAX_RETRIES} retries`,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -272,7 +302,7 @@ function transformElements(
         .join(' ') ||
       null;
 
-    const poiTags: string[] = [];
+    const poiTags: string[] = ['benchmark-seed'];
     if (el.tags['cuisine']) poiTags.push(...el.tags['cuisine'].split(';'));
     if (el.tags['opening_hours']) poiTags.push('has_hours');
 
@@ -403,9 +433,10 @@ async function seed(): Promise<void> {
         continue;
       }
 
-      // Skip cities that already have POI data
+      // Skip cities that already have benchmark POI data
       const existing = await client.query<{ count: string }>(
-        `SELECT COUNT(*)::text as count FROM pois WHERE city_id = $1`,
+        `SELECT COUNT(*)::text as count FROM pois
+         WHERE city_id = $1 AND 'benchmark-seed' = ANY(tags)`,
         [city.id],
       );
       const existingCount = parseInt(existing.rows[0]?.count ?? '0', 10);
@@ -457,7 +488,7 @@ async function clean(): Promise<void> {
 
   try {
     const result = await client.query(
-      `DELETE FROM pois WHERE source = 'osm' AND (source_id LIKE 'node/%' OR source_id LIKE 'way/%')`,
+      `DELETE FROM pois WHERE 'benchmark-seed' = ANY(tags)`,
     );
     console.log(`Deleted ${result.rowCount ?? 0} POIs`);
   } finally {
