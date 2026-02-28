@@ -13,8 +13,8 @@
 - **레포 구조:** pnpm workspace 모노레포 (`apps/backend`, `apps/frontend`, `packages/shared`)
 - **인프라:** Vercel(Frontend, $0) + Railway Hobby(Backend+DB, $5/월)
 - **외부 API:** Amadeus(항공검색) + Kiwi(딥링크) + Agoda/Booking(숙소) + OSM+Google(POI)
-- **PRD:** `docs/prd.md` (skill: `/prd`)
-- **Feasibility:** `docs/feasibility-study.md` (skill: `/feasibility`)
+- **PRD:** `.claude/docs/prd.md` (skill: `/prd`)
+- **Feasibility:** `.claude/docs/feasibility-study.md` (skill: `/feasibility`)
 
 ---
 
@@ -34,8 +34,8 @@
 
 - **문서 언어:** 한영 혼용 (설계 문서는 한국어, 코드/커밋은 영어)
 - **문서 코드 비율:** 개념 중심 설명, 코드 스니펫 최소화
-- **문서 구조:** `docs/` (프로젝트 레벨 문서), `plans/` (태스크 계획서)
-- **계획서 파일명:** `plans/t{번호}-{주제}.md` (예: `t02-db-schema.md`)
+- **문서 구조:** `.claude/docs/` (프로젝트 레벨 문서), `.claude/plans/` (태스크 계획서)
+- **계획서 파일명:** `.claude/plans/t{번호}-{주제}.md` (예: `t02-db-schema.md`)
 - **브랜치 전략:** GitHub Flow (`main` + `feat|fix/*` 브랜치)
 - **브랜치 네이밍:** `feat/t{번호}-{설명}` 또는 `fix/{설명}` (예: `feat/t02-db-schema`)
 - **커밋 컨벤션:** Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`)
