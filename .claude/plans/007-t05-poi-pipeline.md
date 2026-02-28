@@ -254,6 +254,7 @@ UPDATE pois
 SET is_active = false, updated_at = NOW()
 WHERE city_id = :cityId
   AND source = 'osm'
+  -- NULL last_synced_at은 자동 제외 (의도적): 수동 추가 POI나 마이그레이션 이전 데이터 보호
   AND last_synced_at < :syncStartedAt
   AND is_active = true;
 ```
@@ -320,19 +321,18 @@ Body: { "googlePlaceId": "ChIJ..." }
 
 ### 구현 범위 (T05)
 
-T05에서는 **설계와 기반만 구현**:
+T05에서는 **설계와 기반 구현**:
 
 1. POI 엔티티에 `googlePlaceId` 컬럼 추가 (+ 마이그레이션)
 2. `.env.example`에 `GOOGLE_PLACES_API_KEY` 추가
+3. `PATCH /api/v1/pois/:id` 엔드포인트 구현 (place_id 저장용, 간단한 단일 필드 업데이트)
 
 **T15/T16에서 구현할 항목** (Google Places 관련):
 
 - `GooglePlacesEnrichment` 공유 타입 정의 (`packages/shared`)
 - Maps JS API Places Library 연동 구현
-- place_id fire & forget 로직 (`navigator.sendBeacon` / `fetch keepalive`)
+- place_id fire & forget 클라이언트 로직 (`navigator.sendBeacon` / `fetch keepalive`)
 - API 키 보안: Referrer 제한 + API 제한 + 일일 캡 + Firebase App Check
-
-백엔드의 place_id 저장 PATCH 엔드포인트는 PoisController 구현 시 추가.
 
 ---
 
