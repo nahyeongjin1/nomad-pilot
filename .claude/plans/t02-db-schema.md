@@ -261,8 +261,8 @@ apps/backend/src/
 
 ### Step 0: 문서 정리 (가장 먼저)
 
-- 이 계획서를 `.claude/plans/004-t02-db-schema.md`로 저장
-- CLAUDE.md에 T02 계획서 링크 추가 (`@plans/004-t02-db-schema.md`)
+- 이 계획서를 `.claude/plans/t02-db-schema.md`로 저장
+- CLAUDE.md에 T02 계획서 링크 추가 (`@t02-db-schema.md`)
 - T02 상태를 🔄 진행중으로 변경
 
 ### Step 1: 기반 코드

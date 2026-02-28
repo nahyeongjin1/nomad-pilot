@@ -1,0 +1,40 @@
+# 의사결정 로그 (ADR)
+
+> Architecture Decision Records. 프로젝트 전체에 걸친 설계 결정을 기록한다.
+
+| 날짜       | 결정                                      | 근거                                                                                               |
+| ---------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| 2026-02-12 | 서빙 형식: PWA                            | 진입장벽 최소화, 오프라인 지원, 해외 즉시 접근                                                     |
+| 2026-02-12 | 문서 관리: .claude/ 내부                  | 코드와 문서 분리, docs/ + plans/ 구조, CLAUDE.md 허브 방식                                         |
+| 2026-02-12 | 방향: 최저가 여행 파일럿                  | 가치 제안 명확화, 타겟 확장, 수익화 경로 다양화                                                    |
+| 2026-02-12 | MVP 1인 여행 고정                         | 그룹 복잡도 회피, DB 확장 가능 설계, 그룹은 Phase 3 유료                                           |
+| 2026-02-12 | WebSocket 전면 제거                       | REST + Web Push + Client Geofencing 대체. 해외 데이터 절약                                         |
+| 2026-02-12 | 동행자 위치: 1회 조회 방식                | 실시간 불필요, REST 조회로 충분                                                                    |
+| 2026-02-12 | 인프라: Vercel + Railway                  | Frontend $0 + Backend/DB $5/월. NestJS 학습 목적 유지                                              |
+| 2026-02-12 | MVP DB 단일화: PostgreSQL만               | ES/Redis 스케일링 시 도입. tsvector+GIN 텍스트 검색, PostGIS 공간 검색                             |
+| 2026-02-12 | MVP 일본 한정                             | 한국인 해외여행 1위, OSM 품질 우수, 스코프 축소. @feasibility-study.md                             |
+| 2026-02-12 | 항공: Amadeus + Kiwi                      | Amadeus(검색) + Kiwi(딥링크 3%). @feasibility-study.md §1                                          |
+| 2026-02-12 | POI: OSM + Google Places                  | OSM(기본, 무료) + Google(on-demand). @feasibility-study.md §3                                      |
+| 2026-02-12 | 개발 방식: TDD                            | 테스트 먼저 작성 → 구현 → 리팩터. 모든 서비스/로직에 테스트 필수                                   |
+| 2026-02-12 | Git: GitHub Flow                          | main + feat/fix 브랜치. 태스크 단위 브랜치 → main 머지. develop 불필요 (1인 MVP)                   |
+| 2026-02-12 | 로깅: Pino (nestjs-pino)                  | JSON 네이티브, 요청별 자동 로깅. dev: pino-pretty, prod: JSON. Railway stdout 수집                 |
+| 2026-02-25 | 예산: 정규화 테이블                       | budget_allocations 별도 테이블. 다통화/다국가 확장 대비. 환율 스냅샷 저장                          |
+| 2026-02-25 | POI 이름: name+nameLocal+locale           | 표시용(name) + 현지어(nameLocal) + 로케일. City는 curated라 3컬럼(ko/en/local)                     |
+| 2026-02-25 | DB 네이밍: SnakeNamingStrategy            | 커스텀 구현 (~30줄). TypeORM camelCase → PostgreSQL snake_case 자동 변환                           |
+| 2026-02-25 | 삭제 전략: User만 soft delete             | Trip은 hard delete + status로 비즈니스 상태 관리. email unique 제약 유지                           |
+| 2026-02-25 | 마이그레이션 CLI: dist 경로 사용          | ts-node의 .js→.ts 리졸브 문제 회피. 빌드 후 dist/ 참조                                             |
+| 2026-02-25 | PR 머지: squash + 브랜치 삭제             | main 히스토리 깔끔 유지. 머지 후 feature 브랜치 즉시 삭제                                          |
+| 2026-02-26 | 공간 쿼리: geography 타입 유지            | 1km 반경 20ms 이내 달성. geometry 전환 불필요. @../plans/t03-spatial-query.md                      |
+| 2026-02-26 | 공간 인덱스: 단일 GiST 유지               | GiST + 기존 B-tree 조합으로 충분. 복합 인덱스 불필요. 10만건 이상 시 재검토                        |
+| 2026-02-26 | 반경 검색: 2km 이상 시 필터 필수          | 2km 무필터 262ms vs 필터 26ms. 서비스 레이어에서 category 필터 강제                                |
+| 2026-02-28 | 텍스트 검색: tsvector→pg_trgm             | CJK 언어 토큰화 불가. pg_trgm은 언어 무관. @../plans/t04-poi-search.md                             |
+| 2026-02-28 | pg_trgm 인덱스: GIN 선택                  | GIN이 ILIKE/similarity 2~3배 우수. GiST KNN은 city_id 필터 후 장점 없음                            |
+| 2026-02-28 | S3 키워드+반경: 쿼리 분리 권장            | ST_DWithin+ILIKE 조합 70ms. 서비스에서 반경/텍스트 분리 쿼리 후 조합                               |
+| 2026-02-28 | POI 보강: Foursquare 탈락                 | Premium 무료 티어 없음, Google과 동일 캐싱 제한, Phase 2/3 마이그레이션 리스크                     |
+| 2026-02-28 | Google Places: Maps JS API Places Library | 브라우저용(Maps JS API)과 서버용(Places REST)은 별개 API. 클라이언트→Google Edge 직접이 RTT 최소화 |
+| 2026-02-28 | API 키 보안: 다층 방어                    | Referrer 제한만 불충분. API 제한 + 일일 캡 + Firebase App Check(reCAPTCHA) 적용. 키 분리 필수      |
+| 2026-02-28 | place_id 저장: fire & forget              | 클라이언트가 비동기 PATCH. POI별 공유 → 커뮤니티 캐시 효과. 실패 시 다음 유저 재매칭               |
+| 2026-02-28 | Railway 리전: 싱가포르                    | 일본→SG ~50-70ms. 클라이언트 직접 Google 호출이 여전히 우위                                        |
+| 2026-02-28 | 인증: Google + Kakao 소셜 로그인만        | 비밀번호 저장 안 함. 한국인 타겟이라 Kakao 필수 + Google 글로벌 표준. Apple은 Phase 2              |
+| 2026-02-28 | 가입 벽: Trip 생성 시점                   | 탐색(도시/항공/POI)은 비로그인 허용. Trip 저장 시 로그인 요구. 딥링크 수수료는 비로그인도 발생     |
+| 2026-02-28 | place_id PATCH: 비로그인 허용             | 멱등성(최초 1회만 저장) + 포맷 검증(non-empty, 불투명 문자열)으로 구조적 안전. rate limit 불필요   |

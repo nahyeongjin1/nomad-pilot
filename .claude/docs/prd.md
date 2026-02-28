@@ -187,7 +187,7 @@ Phase 1 (MVP): 일본 → Phase 2: 동남아 (베트남, 태국) → Phase 3: �
 
 ### 외부 API 전략 (Feasibility Study 기반)
 
-상세: @plans/002-feasibility-study.md
+상세: @feasibility-study.md
 
 #### 항공: Amadeus (검색) + Kiwi/Travelpayouts (수익화)
 
@@ -203,7 +203,12 @@ Phase 1 (MVP): 일본 → Phase 2: 동남아 (베트남, 태국) → Phase 3: �
 #### POI: OSM (기본) + Google Places (on-demand 보강)
 
 - OSM: 일본 POI 기본 데이터 (이름, 위치, 카테고리). 무료, 캐싱 가능
-- Google Places: 사용자가 POI 상세 볼 때만 호출 (평점, 영업시간, 사진). 무료 1,000콜/월
+- Google Places (on-demand 보강):
+  - 사용자가 POI 상세를 볼 때만 **Maps JS API Places Library로 클라이언트에서 직접 호출** (평점, 영업시간, 사진)
+  - 무료 1,000콜/월
+  - ToS상 서버에 POI 상세 데이터 저장 불가 → 서버 경유 무의미
+  - `place_id`만 fire & forget으로 DB 저장 (커뮤니티 캐시: 한 유저가 매칭하면 모든 유저 혜택)
+  - API 키 보안: Referrer 제한 + API 제한 + 일일 캡 + Firebase App Check
 
 ### 핵심 기술 스택
 
@@ -356,17 +361,17 @@ Phase 1 (MVP): 일본 → Phase 2: 동남아 (베트남, 태국) → Phase 3: �
 
 ## Appendix: 의사결정 이력
 
-| 날짜       | 결정                           | 근거                                                                                          |
-| ---------- | ------------------------------ | --------------------------------------------------------------------------------------------- |
-| 2026-02-12 | 서빙 형식: PWA                 | 진입장벽 최소화, 오프라인 지원, 해외 즉시 접근                                                |
-| 2026-02-12 | 방향: 최저가 여행 파일럿       | 가치 제안 명확화, 타겟 확장, 수익화 경로 다양화                                               |
-| 2026-02-12 | MVP 1인 여행 고정              | 그룹 복잡도 회피, DB 확장 가능 설계, 그룹은 Phase 3 유료                                      |
-| 2026-02-12 | WebSocket 전면 제거            | REST + Web Push + Client Geofencing 대체. 해외 데이터 절약                                    |
-| 2026-02-12 | 동행자 위치: 1회 조회 방식     | 실시간 불필요, REST 조회로 충분                                                               |
-| 2026-02-12 | 인프라: Vercel + Railway Hobby | Frontend $0 + Backend/DB $5/월. NestJS 학습 목적 유지                                         |
-| 2026-02-12 | MVP DB 단일화: PostgreSQL만    | tsvector+GIN 텍스트 검색, PostGIS 공간 검색, JWT 세션                                         |
-| 2026-02-12 | MVP 일본 한정                  | 한국인 해외여행 1위, OSM 품질 우수, 교통 체계적, 스코프 축소. @plans/002-feasibility-study.md |
-| 2026-02-12 | 항공: Amadeus + Kiwi           | Amadeus(검색, 무료) + Kiwi(딥링크, 3%). @plans/002-feasibility-study.md §1                    |
-| 2026-02-12 | 숙소: Agoda → Booking.com      | Agoda(초기, 가입 쉬움) → Booking.com(런칭 후 승인). @plans/002-feasibility-study.md §2        |
-| 2026-02-12 | POI: OSM + Google Places       | OSM(기본, 무료 캐싱) + Google(on-demand 보강). @plans/002-feasibility-study.md §3             |
-| 2026-02-12 | Railway PostGIS: PG17 + 3.5    | 원클릭 템플릿 배포 확인. @plans/002-feasibility-study.md §4                                   |
+| 날짜       | 결정                           | 근거                                                                                |
+| ---------- | ------------------------------ | ----------------------------------------------------------------------------------- |
+| 2026-02-12 | 서빙 형식: PWA                 | 진입장벽 최소화, 오프라인 지원, 해외 즉시 접근                                      |
+| 2026-02-12 | 방향: 최저가 여행 파일럿       | 가치 제안 명확화, 타겟 확장, 수익화 경로 다양화                                     |
+| 2026-02-12 | MVP 1인 여행 고정              | 그룹 복잡도 회피, DB 확장 가능 설계, 그룹은 Phase 3 유료                            |
+| 2026-02-12 | WebSocket 전면 제거            | REST + Web Push + Client Geofencing 대체. 해외 데이터 절약                          |
+| 2026-02-12 | 동행자 위치: 1회 조회 방식     | 실시간 불필요, REST 조회로 충분                                                     |
+| 2026-02-12 | 인프라: Vercel + Railway Hobby | Frontend $0 + Backend/DB $5/월. NestJS 학습 목적 유지                               |
+| 2026-02-12 | MVP DB 단일화: PostgreSQL만    | tsvector+GIN 텍스트 검색, PostGIS 공간 검색, JWT 세션                               |
+| 2026-02-12 | MVP 일본 한정                  | 한국인 해외여행 1위, OSM 품질 우수, 교통 체계적, 스코프 축소. @feasibility-study.md |
+| 2026-02-12 | 항공: Amadeus + Kiwi           | Amadeus(검색, 무료) + Kiwi(딥링크, 3%). @feasibility-study.md §1                    |
+| 2026-02-12 | 숙소: Agoda → Booking.com      | Agoda(초기, 가입 쉬움) → Booking.com(런칭 후 승인). @feasibility-study.md §2        |
+| 2026-02-12 | POI: OSM + Google Places       | OSM(기본, 무료 캐싱) + Google(on-demand 보강). @feasibility-study.md §3             |
+| 2026-02-12 | Railway PostGIS: PG17 + 3.5    | 원클릭 템플릿 배포 확인. @feasibility-study.md §4                                   |
