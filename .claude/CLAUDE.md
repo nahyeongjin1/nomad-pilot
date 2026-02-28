@@ -13,8 +13,8 @@
 - **레포 구조:** pnpm workspace 모노레포 (`apps/backend`, `apps/frontend`, `packages/shared`)
 - **인프라:** Vercel(Frontend, $0) + Railway Hobby(Backend+DB, $5/월)
 - **외부 API:** Amadeus(항공검색) + Kiwi(딥링크) + Agoda/Booking(숙소) + OSM+Google(POI)
-- **PRD:** @docs/prd.md
-- **Feasibility:** @docs/feasibility-study.md
+- **PRD:** `docs/prd.md` (skill: `/prd`)
+- **Feasibility:** `docs/feasibility-study.md` (skill: `/feasibility`)
 
 ---
 
@@ -39,8 +39,8 @@
 - **브랜치 전략:** GitHub Flow (`main` + `feat|fix/*` 브랜치)
 - **브랜치 네이밍:** `feat/t{번호}-{설명}` 또는 `fix/{설명}` (예: `feat/t02-db-schema`)
 - **커밋 컨벤션:** Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`)
-- **PR 작성:** @../.github/PULL_REQUEST_TEMPLATE.md 포맷을 따른다
-- **포맷팅:** Prettier (.prettierrc) 기준. VSCode format-on-save + pre-commit hook이 처리하므로, lint/포맷 경고는 무시하며 진행.
+- **PR 작성:** skill `/create-pr`로 생성 (`.github/PULL_REQUEST_TEMPLATE.md` 기반)
+- **포맷팅:** Prettier (.prettierrc) + ESLint 기준. VSCode format-on-save + pre-commit hook이 자동 처리하므로, Prettier/ESLint 스타일 경고는 무시하며 진행. (TS 컴파일 에러나 테스트 실패는 반드시 수정)
 
 ---
 
