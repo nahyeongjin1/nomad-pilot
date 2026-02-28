@@ -140,7 +140,8 @@ pg_trgm 인덱스는 기존 `name`/`name_local` 컬럼에 직접 적용되므로
 
 - `Poi` 엔티티에서 `searchVector` 필드 제거
 - 자동 마이그레이션 (`migration:generate`): `search_vector` 컬럼 + `IDX_pois_search_vector` 삭제
-- 수동 마이그레이션 (`migration:create`): pg_trgm 확장 + GIN **및** GiST trgm 인덱스 모두 생성 (벤치마크용)
+- 수동 마이그레이션 (`migration:create`): pg_trgm 확장 + GIN trgm 인덱스 생성
+- 벤치마크용 GiST trgm 인덱스: ad-hoc SQL로 임시 생성/삭제 (마이그레이션에 포함하지 않음)
 - `pnpm migration:run`
 
 ### Step 2: 벤치마크 데이터

@@ -17,6 +17,5 @@ export class EnablePgTrgm1772255104055 implements MigrationInterface {
       `DROP INDEX IF EXISTS "IDX_pois_name_local_trgm_gin"`,
     );
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_pois_name_trgm_gin"`);
-    await queryRunner.query(`DROP EXTENSION IF EXISTS "pg_trgm"`);
   }
 }
