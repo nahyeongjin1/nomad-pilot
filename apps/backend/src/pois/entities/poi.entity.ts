@@ -96,10 +96,6 @@ export class Poi extends BaseEntity {
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
 
-  @Index('IDX_pois_search_vector', { synchronize: false })
-  @Column({ type: 'tsvector', nullable: true, select: false })
-  searchVector!: string | null;
-
   @OneToMany(() => TripDayPoi, (tdp) => tdp.poi)
   tripDayPois!: TripDayPoi[];
 }
