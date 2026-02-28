@@ -92,8 +92,8 @@ DB 스키마나 코드를 작성하기 전에, 프로덕트가 기술적으로 �
   - Google은 브라우저용(**Maps JS API**)과 서버용(**Places API REST**)을 별개 API로 제공
   - Maps JS API Places Library는 브라우저에서 사용하도록 설계된 공식 패턴
   - ToS상 DB 저장 불가한 데이터를 서버 경유할 이유 없음. 클라이언트→Google Edge 직접 호출로 RTT 최소화
-- Enterprise 티어: $35/1K (평점, 영업시간, 가격대 포함)
-- 무료: 1,000콜/월 (Enterprise)
+- Place Details Enterprise SKU: $35/1K (평점, 영업시간, 가격대 포함). 기준: 2025.03~ per-SKU 과금 체계. [공식 가격표](https://developers.google.com/maps/documentation/places/web-service/usage-and-billing)
+- 무료: Enterprise 1,000콜/월, Pro 5,000콜/월, Essentials 10,000콜/월 (SKU별 별도 적용)
 - place_id만 DB 저장 가능 → fire & forget 패턴으로 백엔드에 비동기 저장. POI별 공유 데이터라 한 유저가 매칭하면 모든 유저가 혜택
 - 캐싱 불가 정책: 데이터 저장 금지, 실시간 호출 필수
 - **API 키 보안 (다층 방어)**:
