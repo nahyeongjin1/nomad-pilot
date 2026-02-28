@@ -90,6 +90,19 @@ export class Poi extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   sourceId!: string | null;
 
+  @Column({ type: 'varchar', length: 1000, nullable: true })
+  website!: string | null;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  phone!: string | null;
+
+  @Index()
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  googlePlaceId!: string | null;
+
+  @Column({ type: 'timestamptz', nullable: true })
+  lastSyncedAt!: Date | null;
+
   @Column({ type: 'text', array: true, default: '{}' })
   tags!: string[];
 
