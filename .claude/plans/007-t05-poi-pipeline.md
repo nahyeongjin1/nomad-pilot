@@ -45,21 +45,28 @@ Layer 2: Google Places (on-demand 보강)
   └─ 캐싱: place_id만 DB 저장 가능 (반복 호출 비용 절감)
 ```
 
-### 호출 흐름 (클라이언트 직접 호출 + fire & forget)
+### 호출 흐름 (Maps JS API Places Library + fire & forget)
 
-Google Places API 호출 주체는 **클라이언트(브라우저)**. ToS상 DB 저장이 불가한 데이터가 서버 경유할 이유가 없고, 클라이언트에서 Google Edge(일본에서 사용한다면 도쿄)로 직접 호출하면 RTT를 최소화할 수 있다.
+Google은 클라이언트/서버 용도로 **별개의 API**를 제공한다:
+
+| API                                      | 의도된 환경 | 키 노출                     | 용도                        |
+| ---------------------------------------- | ----------- | --------------------------- | --------------------------- |
+| **Maps JavaScript API (Places Library)** | 브라우저    | 공개 (Google이 의도한 패턴) | UI: 상세 조회, Autocomplete |
+| **Places API (New) REST**                | 서버        | 비공개 필수                 | 배치 처리, 경로 최적화      |
+
+클라이언트에서는 **Maps JS API Places Library**를 사용한다. Places API REST 엔드포인트를 브라우저에서 직접 호출하는 것은 Google이 의도하지 않은 패턴이므로 사용하지 않는다.
 
 ```text
 [POI 리스트 뷰]
   └─ 백엔드 API → DB에서 OSM 데이터 반환 (이름, 카테고리, 위치, google_place_id)
 
-[POI 상세 뷰] — 사용자 클릭 시
+[POI 상세 뷰] — 사용자 클릭 시 (Maps JS API Places Library)
   ├─ google_place_id가 이미 있음?
-  │    └─ Yes → 클라이언트 → Google Places Details API (place_id로 직접 조회)
+  │    └─ Yes → Places Library getDetails() (place_id로 직접 조회)
   │
   ├─ google_place_id가 없음?
-  │    └─ 클라이언트 → Google Find Place API (이름+좌표로 검색)
-  │         ├─ 응답에서 place_id 추출 → 즉시 Details API 호출
+  │    └─ Places Library findPlaceFromQuery() (이름+좌표로 검색)
+  │         ├─ 응답에서 place_id 추출 → 즉시 getDetails() 호출
   │         └─ fire & forget: PATCH /api/v1/pois/:id { googlePlaceId }
   │              (백엔드에 비동기 저장, 실패해도 무시)
   │
@@ -68,16 +75,32 @@ Google Places API 호출 주체는 **클라이언트(브라우저)**. ToS상 DB 
 
 #### 왜 클라이언트 직접 호출인가
 
-| 항목            | 서버 경유                                    | 클라이언트 직접                    |
-| --------------- | -------------------------------------------- | ---------------------------------- |
-| RTT (일본 유저) | ~160ms (유저→SG→Google→SG→유저)              | ~20-30ms (유저→Google 도쿄 Edge)   |
-| API 키 보호     | 서버에 숨김                                  | 브라우저 노출 (HTTP Referrer 제한) |
-| 비용 제어       | 서버에서 rate limit                          | Google Console quota               |
-| place_id 저장   | 서버에서 직접                                | fire & forget PATCH                |
-| DB 저장 필요성  | 저장 불가한 데이터를 경유하는 것 자체가 낭비 | 저장 가능한 place_id만 비동기 전송 |
+| 항목             | 서버 경유 (Places API REST)       | 클라이언트 (Maps JS API Places Library)   |
+| ---------------- | --------------------------------- | ----------------------------------------- |
+| RTT (일본 유저)  | ~160ms (유저→SG→Google→SG→유저)   | ~20-30ms (유저→Google 도쿄 Edge)          |
+| API 키 보호      | 서버에 숨김                       | 브라우저 노출 (다층 보안 적용)            |
+| 비용 제어        | 서버에서 rate limit               | Google Console quota + 일일 캡            |
+| place_id 저장    | 서버에서 직접                     | fire & forget PATCH                       |
+| Google 공식 지원 | 서버용 API를 서버에서 호출 (정상) | 브라우저용 API를 브라우저에서 호출 (정상) |
 
 - Railway 리전: **싱가포르** (일본→SG ~50-70ms). 가깝지만 클라이언트 직접이 여전히 우위
 - `place_id`는 POI별 공유 데이터: 한 유저가 매칭하면 이후 **모든 유저가 Find Place 단계 생략** (커뮤니티 캐시 효과)
+
+#### API 키 보안 (다층 방어)
+
+Maps JS API의 API 키는 브라우저에 노출되므로 다층 보안을 적용한다:
+
+| 계층 | 보호 수단          | 설명                                              | 시점    |
+| ---- | ------------------ | ------------------------------------------------- | ------- |
+| 1    | HTTP Referrer 제한 | `https://nomad-pilot.vercel.app/*`만 허용         | MVP     |
+| 2    | API 제한           | Maps JavaScript API만 허용 (다른 Google API 차단) | MVP     |
+| 3    | 일일 할당량 캡     | Places 1,000 req/day (초과 시 API 중단)           | MVP     |
+| 4    | 예산 알림          | 50%, 90%, 100% 임계값 알림                        | MVP     |
+| 5    | Firebase App Check | reCAPTCHA로 앱 인스턴스 검증, 스크립트 공격 차단  | 런칭 전 |
+
+- **브라우저 전용 키와 서버 전용 키를 반드시 분리** (향후 서버에서 Places API REST 사용 시)
+- **키 로테이션**: 90일 주기 권장
+- Referrer 제한만으로는 curl/스크립트로 우회 가능 → **Firebase App Check가 핵심 방어선**
 
 #### fire & forget 패턴
 
@@ -146,12 +169,47 @@ OSM의 `opening_hours` 태그는 복잡한 형식 (예: `Mo-Fr 09:00-17:00; Sa 1
 | `cuisine`       | subCategory  | 음식 종류 (기존)                     |
 | `name:ko`       | name         | 한국어 이름 우선 (기존 name:en 대신) |
 
-### 이름 우선순위 변경
+### 이름 선택 로직
 
 벤치마크 스크립트: `name:en` > `name` > `name:ja`
-프로덕션 파이프라인: `name:ko` > `name:en` > `name` > `name:ja`
+프로덕션 파이프라인: 아래 헬퍼 함수로 로케일별 우선순위 관리.
 
-i18n은 현재 고려하지 않고 한국인 대상 서비스이므로 한국어 이름 최우선. `name_local`은 `name:ja` > `name` 순서 유지.
+```typescript
+// 로케일별 이름 우선순위 설정
+const NAME_PRIORITY: Record<string, string[]> = {
+  ko: ['name:ko', 'name:en', 'name', 'name:ja'], // 한국어 사용자 (MVP)
+  en: ['name:en', 'name', 'name:ja'], // 향후 영어권 확장
+};
+
+const NAME_LOCAL_PRIORITY: Record<string, string[]> = {
+  ko: ['name:ja', 'name'], // 현지어 = 일본어 우선
+  en: ['name:ja', 'name'],
+};
+
+function selectName(
+  tags: Record<string, string>,
+  locale: string,
+): string | null {
+  const priority = NAME_PRIORITY[locale] ?? NAME_PRIORITY['en'];
+  for (const key of priority) {
+    if (tags[key]) return tags[key];
+  }
+  return null;
+}
+
+function selectNameLocal(
+  tags: Record<string, string>,
+  locale: string,
+): string | null {
+  const priority = NAME_LOCAL_PRIORITY[locale] ?? NAME_LOCAL_PRIORITY['en'];
+  for (const key of priority) {
+    if (tags[key]) return tags[key];
+  }
+  return null;
+}
+```
+
+MVP에서는 `locale = 'ko'` 고정. 향후 지역 확장(동남아, 유럽) 시 로케일 설정만 추가하면 이름 선택 로직 변경 없이 대응 가능.
 
 ### 인기도 태깅
 
@@ -231,9 +289,10 @@ MVP에서는 **Atmosphere 필드만 요청** (평점, 가격대가 핵심 가치
 
 Google Places 응답은 DB에 저장하지 않음. **클라이언트에서 직접 호출하고 직접 렌더링**.
 
-클라이언트가 사용할 타입 (향후 `packages/shared`에 정의):
+클라이언트가 사용할 타입 참고 (T15/T16에서 `packages/shared`에 정의):
 
 ```typescript
+// 참고용 타입 스케치. 실제 정의는 T15/T16에서 Google Places API 응답 스펙에 맞춰 확정
 interface GooglePlacesEnrichment {
   rating: number | null;
   userRatingsTotal: number | null;
@@ -264,10 +323,16 @@ Body: { "googlePlaceId": "ChIJ..." }
 T05에서는 **설계와 기반만 구현**:
 
 1. POI 엔티티에 `googlePlaceId` 컬럼 추가 (+ 마이그레이션)
-2. `.env.example`에 `GOOGLE_PLACES_API_KEY` 추가 (프론트엔드용, Referrer 제한 설정)
-3. 공유 타입 정의 (`GooglePlacesEnrichment` 인터페이스)
+2. `.env.example`에 `GOOGLE_PLACES_API_KEY` 추가
 
-Google Places API 직접 호출은 프론트엔드(T15/T16)에서 구현. 백엔드의 place_id 저장 PATCH 엔드포인트는 PoisController 구현 시 추가.
+**T15/T16에서 구현할 항목** (Google Places 관련):
+
+- `GooglePlacesEnrichment` 공유 타입 정의 (`packages/shared`)
+- Maps JS API Places Library 연동 구현
+- place_id fire & forget 로직 (`navigator.sendBeacon` / `fetch keepalive`)
+- API 키 보안: Referrer 제한 + API 제한 + 일일 캡 + Firebase App Check
+
+백엔드의 place_id 저장 PATCH 엔드포인트는 PoisController 구현 시 추가.
 
 ---
 

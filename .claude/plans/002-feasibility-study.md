@@ -85,15 +85,23 @@ DB 스키마나 코드를 작성하기 전에, 프로덕트가 기술적으로 �
 - 유럽/일본 커버리지 우수
 - 한계: 평점, 리뷰, 사진 없음 → Layer 2로 보강
 
-#### Layer 2: Google Places API (상세 조회 시 on-demand)
+#### Layer 2: Google Maps JS API Places Library (상세 조회 시 on-demand)
 
 - 사용자가 특정 POI 상세를 볼 때만 호출 (비용 최적화)
-- **호출 주체: 클라이언트(브라우저)** — ToS상 DB 저장 불가한 데이터를 서버 경유할 이유 없음. 클라이언트→Google Edge 직접 호출로 RTT 최소화
+- **호출 주체: 클라이언트(브라우저)**
+  - Google은 브라우저용(**Maps JS API**)과 서버용(**Places API REST**)을 별개 API로 제공
+  - Maps JS API Places Library는 브라우저에서 사용하도록 설계된 공식 패턴
+  - ToS상 DB 저장 불가한 데이터를 서버 경유할 이유 없음. 클라이언트→Google Edge 직접 호출로 RTT 최소화
 - Enterprise 티어: $35/1K (평점, 영업시간, 가격대 포함)
 - 무료: 1,000콜/월 (Enterprise)
 - place_id만 DB 저장 가능 → fire & forget 패턴으로 백엔드에 비동기 저장. POI별 공유 데이터라 한 유저가 매칭하면 모든 유저가 혜택
 - 캐싱 불가 정책: 데이터 저장 금지, 실시간 호출 필수
-- API 키 보호: HTTP Referrer 제한 (Google Console에서 허용 도메인 설정)
+- **API 키 보안 (다층 방어)**:
+  - HTTP Referrer 제한 (Google Console에서 허용 도메인 설정)
+  - API 제한 (Maps JavaScript API만 허용)
+  - 일일 할당량 캡 (초과 시 API 중단)
+  - **Firebase App Check + reCAPTCHA** (런칭 전 적용. Referrer 우회 공격 차단)
+  - 브라우저 키와 서버 키 분리 필수
 
 #### 비용 시뮬레이션 (MVP)
 
