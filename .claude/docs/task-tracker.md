@@ -15,7 +15,7 @@
 | ID  | 태스크                           | 상태 | 계획서                            |
 | --- | -------------------------------- | ---- | --------------------------------- |
 | T04 | POI 검색 설계 (pg_trgm)          | ✅   | .claude/plans/t04-poi-search.md   |
-| T05 | 일본 POI 데이터 파이프라인       | ⬜   | .claude/plans/t05-poi-pipeline.md |
+| T05 | 일본 POI 데이터 파이프라인       | ✅   | .claude/plans/t05-poi-pipeline.md |
 | T06 | 외부 API 연동 (항공/숙소/딥링크) | ⬜   | -                                 |
 
 ## Core Engine
