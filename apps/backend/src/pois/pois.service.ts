@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Repository } from 'typeorm';
 import { Poi } from './entities/poi.entity.js';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class PoisService {
     googlePlaceId: string,
   ): Promise<boolean> {
     const result = await this.poiRepo.update(
-      { id, googlePlaceId: null as unknown as string },
+      { id, googlePlaceId: IsNull() },
       { googlePlaceId },
     );
 

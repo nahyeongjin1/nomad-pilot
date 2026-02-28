@@ -100,6 +100,7 @@ export class Poi extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   googlePlaceId!: string | null;
 
+  @Index()
   @Column({ type: 'timestamptz', nullable: true })
   lastSyncedAt!: Date | null;
 

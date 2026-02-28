@@ -342,7 +342,14 @@ function transformElements(
 
     // Build tags from OSM metadata
     const poiTags: string[] = [];
-    if (el.tags['cuisine']) poiTags.push(...el.tags['cuisine'].split(';'));
+    if (el.tags['cuisine']) {
+      poiTags.push(
+        ...el.tags['cuisine']
+          .split(';')
+          .map((v) => v.trim())
+          .filter(Boolean),
+      );
+    }
     if (el.tags['wikidata']) poiTags.push('has_wikidata');
     if (el.tags['wikipedia']) poiTags.push('has_wikipedia');
     if (el.tags['opening_hours']) poiTags.push('has_hours');
@@ -644,11 +651,17 @@ if (command === 'status') {
     console.error('Status failed:', err);
     process.exit(1);
   });
-} else {
+} else if (command === 'sync' || command == null) {
   // "sync" or default (no args) → sync all; "sync Tokyo" → sync single city
   const cityFilter = command === 'sync' ? process.argv[3] : undefined;
   void sync(cityFilter).catch((err: unknown) => {
     console.error('Sync failed:', err);
     process.exit(1);
   });
+} else {
+  console.error(`Unknown command: ${command}`);
+  console.error(
+    'Usage: ts-node scripts/sync-osm-pois.ts [status|sync [CityName]]',
+  );
+  process.exit(1);
 }

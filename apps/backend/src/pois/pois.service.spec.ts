@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { NotFoundException } from '@nestjs/common';
+import { IsNull } from 'typeorm';
 import { PoisService } from './pois.service.js';
 import { Poi } from './entities/poi.entity.js';
 
@@ -35,7 +36,7 @@ describe('PoisService', () => {
 
       expect(result).toBe(true);
       expect(mockPoiRepo.update).toHaveBeenCalledWith(
-        { id: poiId, googlePlaceId: null },
+        { id: poiId, googlePlaceId: IsNull() },
         { googlePlaceId: placeId },
       );
     });
