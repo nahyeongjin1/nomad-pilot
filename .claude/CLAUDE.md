@@ -51,6 +51,9 @@
 | 2026-02-26 | 공간 쿼리: geography 타입 유지   | 1km 반경 20ms 이내 달성. geometry 전환 불필요. @plans/005-t03-spatial-query.md     |
 | 2026-02-26 | 공간 인덱스: 단일 GiST 유지      | GiST + 기존 B-tree 조합으로 충분. 복합 인덱스 불필요. 10만건 이상 시 재검토        |
 | 2026-02-26 | 반경 검색: 2km 이상 시 필터 필수 | 2km 무필터 262ms vs 필터 26ms. 서비스 레이어에서 category 필터 강제                |
+| 2026-02-28 | 텍스트 검색: tsvector→pg_trgm    | CJK 언어 토큰화 불가. pg_trgm은 언어 무관. @plans/006-t04-poi-search.md            |
+| 2026-02-28 | pg_trgm 인덱스: GIN 선택         | GIN이 ILIKE/similarity 2~3배 우수. GiST KNN은 city_id 필터 후 장점 없음            |
+| 2026-02-28 | S3 키워드+반경: 쿼리 분리 권장   | ST_DWithin+ILIKE 조합 70ms. 서비스에서 반경/텍스트 분리 쿼리 후 조합               |
 
 ---
 
@@ -62,7 +65,8 @@
 - **브랜치 전략:** GitHub Flow (`main` + `feat|fix/*` 브랜치)
 - **브랜치 네이밍:** `feat/t{번호}-{설명}` 또는 `fix/{설명}` (예: `feat/t02-db-schema`)
 - **커밋 컨벤션:** Conventional Commits (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`)
-- **PR 작성:** `.github/PULL_REQUEST_TEMPLATE.md` 포맷을 따른다
+- **PR 작성:** @../.github/PULL_REQUEST_TEMPLATE.md 포맷을 따른다
+- **포맷팅:** Prettier (.prettierrc) 기준. VSCode format-on-save + pre-commit hook이 처리하므로, lint/포맷 경고는 무시하며 진행.
 
 ---
 
@@ -100,11 +104,10 @@ pnpm test:cov          # 커버리지
 ### 마이그레이션 워크플로우
 
 ```bash
-# 엔티티 코드 작성/변경 후
-pnpm build
-pnpm migration:generate --name=DescriptiveName  # 자동 생성 (엔티티↔DB 비교)
-pnpm migration:run                               # 적용
+# 엔티티 코드 작성/변경 후 (premigration 훅이 자동 빌드하므로 pnpm build 불필요)
+npm_config_name=DescriptiveName pnpm -F backend migration:generate  # 자동 생성 (엔티티↔DB 비교)
+pnpm -F backend migration:run                                       # 적용
 
 # PostGIS 확장 등 엔티티 무관 작업
-pnpm migration:create --name=ManualMigration     # 빈 파일 생성 → 수동 작성
+npm_config_name=ManualMigration pnpm -F backend migration:create    # 빈 파일 생성 → 수동 작성
 ```
