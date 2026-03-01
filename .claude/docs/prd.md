@@ -311,7 +311,8 @@ Phase 1 (MVP): 일본 → Phase 2: 동남아 (베트남, 태국) → Phase 3: �
 
 - **T04.** POI 검색 설계 (일본어+한국어 tsvector + GIN)
 - **T05.** 일본 POI 데이터 파이프라인 (OSM Japan 추출 → DB 적재 + Google Places 보강 전략)
-- **T06.** 외부 API 연동 (Amadeus 항공 검색, Kiwi 딥링크, Agoda/Booking 숙소)
+- **T06a.** 항공 API 연동 (Amadeus 검색 + Travelpayouts 딥링크)
+- **T06b.** 숙소 API 연동 (Agoda/Booking 제휴 승인 후)
 
 ### 🧭 Core Engine (핵심 엔진)
 
