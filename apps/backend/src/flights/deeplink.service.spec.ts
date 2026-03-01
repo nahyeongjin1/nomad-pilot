@@ -35,6 +35,8 @@ describe('DeeplinkService', () => {
       expect(url).toContain('depart_date=2026-04-01');
       expect(url).toContain('one_way=true');
       expect(url).toContain('adults=1');
+      expect(url).toContain('locale=ko');
+      expect(url).toContain('currency=KRW');
       expect(url).not.toContain('return_date');
     });
 

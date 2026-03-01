@@ -32,6 +32,8 @@ export class DeeplinkService {
       infants: '0',
       trip_class: '0',
       one_way: String(isOneWay),
+      locale: 'ko',
+      currency: 'KRW',
     });
 
     if (returnDate) {

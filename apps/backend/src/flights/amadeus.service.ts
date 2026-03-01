@@ -46,8 +46,13 @@ export class AmadeusService {
       this.configService.get<string>('AMADEUS_CLIENT_SECRET') ?? '';
 
     if (!this.clientId || !this.clientSecret) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error(
+          'AMADEUS_CLIENT_ID and AMADEUS_CLIENT_SECRET must be configured',
+        );
+      }
       this.logger.warn(
-        'AMADEUS_CLIENT_ID and AMADEUS_CLIENT_SECRET must be configured',
+        'AMADEUS_CLIENT_ID and AMADEUS_CLIENT_SECRET are not configured',
       );
     }
   }
