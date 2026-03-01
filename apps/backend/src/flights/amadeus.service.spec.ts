@@ -1,7 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import { BadRequestException, BadGatewayException } from '@nestjs/common';
+import {
+  BadRequestException,
+  BadGatewayException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { of, throwError } from 'rxjs';
 import { AxiosResponse, AxiosHeaders, AxiosError } from 'axios';
 import { AmadeusService } from './amadeus.service.js';
@@ -283,6 +287,43 @@ describe('AmadeusService', () => {
           adults: 1,
         }),
       ).rejects.toThrow(BadGatewayException);
+    });
+
+    it('should map retry failure error after 401', async () => {
+      const newTokenResponse = {
+        ...tokenResponse,
+        access_token: 'new_token_456',
+      };
+      httpService.post
+        .mockReturnValueOnce(of(makeAxiosResponse(tokenResponse)))
+        .mockReturnValueOnce(of(makeAxiosResponse(newTokenResponse)));
+
+      httpService.get
+        .mockReturnValueOnce(throwError(() => makeAxiosError(401)))
+        .mockReturnValueOnce(throwError(() => makeAxiosError(500)));
+
+      await expect(
+        service.searchFlightOffers({
+          origin: 'ICN',
+          destination: 'NRT',
+          departureDate: '2026-04-01',
+          adults: 1,
+        }),
+      ).rejects.toThrow(BadGatewayException);
+    });
+
+    it('should throw ServiceUnavailableException on 429', async () => {
+      httpService.post.mockReturnValue(of(makeAxiosResponse(tokenResponse)));
+      httpService.get.mockReturnValue(throwError(() => makeAxiosError(429)));
+
+      await expect(
+        service.searchFlightOffers({
+          origin: 'ICN',
+          destination: 'NRT',
+          departureDate: '2026-04-01',
+          adults: 1,
+        }),
+      ).rejects.toThrow(ServiceUnavailableException);
     });
   });
 });

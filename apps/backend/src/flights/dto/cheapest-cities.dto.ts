@@ -19,7 +19,9 @@ export class CheapestCitiesDto {
   @IsOptional()
   @IsString()
   @Length(3, 3)
-  @Transform(({ value }) => (value as string).toUpperCase())
+  @Transform(({ value }) =>
+    value ? (value as string).toUpperCase() : undefined,
+  )
   origin?: string;
 
   @ApiProperty({
@@ -46,7 +48,9 @@ export class CheapestCitiesDto {
   @IsInt()
   @Min(1)
   @Max(9)
-  @Transform(({ value }) => parseInt(value as string, 10))
+  @Transform(({ value }) =>
+    value != null ? parseInt(value as string, 10) : undefined,
+  )
   adults?: number;
 
   @ApiPropertyOptional({
@@ -58,6 +62,8 @@ export class CheapestCitiesDto {
   @IsInt()
   @Min(1)
   @Max(10)
-  @Transform(({ value }) => parseInt(value as string, 10))
+  @Transform(({ value }) =>
+    value != null ? parseInt(value as string, 10) : undefined,
+  )
   maxPerCity?: number;
 }

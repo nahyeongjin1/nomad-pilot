@@ -44,6 +44,12 @@ export class AmadeusService {
     this.clientId = this.configService.get<string>('AMADEUS_CLIENT_ID') ?? '';
     this.clientSecret =
       this.configService.get<string>('AMADEUS_CLIENT_SECRET') ?? '';
+
+    if (!this.clientId || !this.clientSecret) {
+      this.logger.warn(
+        'AMADEUS_CLIENT_ID and AMADEUS_CLIENT_SECRET must be configured',
+      );
+    }
   }
 
   async searchFlightOffers(
@@ -55,7 +61,11 @@ export class AmadeusService {
       if (this.isAxiosError(error) && error.response?.status === 401) {
         this.logger.warn('Token expired, refreshing and retrying');
         this.invalidateToken();
-        return this.doSearch(params);
+        try {
+          return await this.doSearch(params);
+        } catch (retryError) {
+          throw this.mapError(retryError);
+        }
       }
       throw this.mapError(error);
     }

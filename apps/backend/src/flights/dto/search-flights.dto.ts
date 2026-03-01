@@ -48,7 +48,9 @@ export class SearchFlightsDto {
   @IsInt()
   @Min(1)
   @Max(9)
-  @Transform(({ value }) => parseInt(value as string, 10))
+  @Transform(({ value }) =>
+    value != null ? parseInt(value as string, 10) : undefined,
+  )
   adults?: number;
 
   @ApiPropertyOptional({ description: 'Non-stop flights only', default: false })
@@ -66,6 +68,8 @@ export class SearchFlightsDto {
   @IsInt()
   @Min(1)
   @Max(10)
-  @Transform(({ value }) => parseInt(value as string, 10))
+  @Transform(({ value }) =>
+    value != null ? parseInt(value as string, 10) : undefined,
+  )
   max?: number;
 }

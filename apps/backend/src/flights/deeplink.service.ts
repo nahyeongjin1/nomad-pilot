@@ -49,6 +49,7 @@ export class DeeplinkService {
       return searchUrl;
     }
 
+    // p=4114: Aviasales program ID in Travelpayouts
     const query = new URLSearchParams({
       marker,
       p: '4114',

@@ -56,7 +56,7 @@ export class FlightsService {
       max = 5,
     } = params;
 
-    const cacheKey = `flights:${origin}:${destination}:${departureDate}:${returnDate ?? 'ow'}:${adults}:${nonStop}`;
+    const cacheKey = `flights:${origin}:${destination}:${departureDate}:${returnDate ?? 'ow'}:${adults}:${nonStop}:${max}`;
     const cached = await this.cacheManager.get<FlightOfferDto[]>(cacheKey);
 
     if (cached) {
@@ -100,27 +100,30 @@ export class FlightsService {
       where: { countryCode: 'JP', isActive: true },
     });
 
-    // Collect all unique IATA codes across all cities
+    // Collect search promises with in-flight dedupe (e.g. KIX shared by Osaka/Kyoto)
     const searchPromises: Array<{
       cityId: string;
       iataCode: string;
       promise: Promise<FlightOfferDto[]>;
     }> = [];
+    const inflight = new Map<string, Promise<FlightOfferDto[]>>();
 
     for (const city of cities) {
       for (const iataCode of city.iataCodes) {
-        searchPromises.push({
-          cityId: city.id,
-          iataCode,
-          promise: this.searchFlights({
+        const key = `${origin}:${iataCode}:${departureDate}:${returnDate ?? 'ow'}:${adults}:${maxPerCity}`;
+        let promise = inflight.get(key);
+        if (!promise) {
+          promise = this.searchFlights({
             origin,
             destination: iataCode,
             departureDate,
             returnDate,
             adults,
             max: maxPerCity,
-          }),
-        });
+          });
+          inflight.set(key, promise);
+        }
+        searchPromises.push({ cityId: city.id, iataCode, promise });
       }
     }
 

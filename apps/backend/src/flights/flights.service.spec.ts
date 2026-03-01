@@ -148,7 +148,7 @@ describe('FlightsService', () => {
       expect(cacheManager.set).toHaveBeenCalledWith(
         expect.stringContaining('flights:'),
         result,
-        expect.any(Number),
+        15 * 60 * 1000,
       );
     });
 
@@ -167,7 +167,7 @@ describe('FlightsService', () => {
       });
 
       expect(cacheManager.get).toHaveBeenCalledWith(
-        'flights:ICN:NRT:2026-04-01:2026-04-07:2:true',
+        'flights:ICN:NRT:2026-04-01:2026-04-07:2:true:5',
       );
     });
   });
