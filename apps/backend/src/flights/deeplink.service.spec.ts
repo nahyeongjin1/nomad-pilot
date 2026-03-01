@@ -20,47 +20,9 @@ describe('DeeplinkService', () => {
     jest.clearAllMocks();
   });
 
-  describe('buildSearchUrl', () => {
-    it('should build a one-way Aviasales search URL', () => {
-      const url = service.buildSearchUrl({
-        origin: 'ICN',
-        destination: 'NRT',
-        departureDate: '2026-04-01',
-        adults: 1,
-      });
-
-      expect(url).toContain('https://search.aviasales.com/flights/');
-      expect(url).toContain('origin_iata=ICN');
-      expect(url).toContain('destination_iata=NRT');
-      expect(url).toContain('depart_date=2026-04-01');
-      expect(url).toContain('one_way=true');
-      expect(url).toContain('adults=1');
-      expect(url).toContain('locale=ko');
-      expect(url).toContain('currency=KRW');
-      expect(url).not.toContain('return_date');
-    });
-
-    it('should build a round-trip Aviasales search URL', () => {
-      const url = service.buildSearchUrl({
-        origin: 'ICN',
-        destination: 'KIX',
-        departureDate: '2026-04-01',
-        returnDate: '2026-04-07',
-        adults: 2,
-      });
-
-      expect(url).toContain('origin_iata=ICN');
-      expect(url).toContain('destination_iata=KIX');
-      expect(url).toContain('depart_date=2026-04-01');
-      expect(url).toContain('return_date=2026-04-07');
-      expect(url).toContain('one_way=false');
-      expect(url).toContain('adults=2');
-    });
-  });
-
   describe('buildDeeplink', () => {
-    it('should wrap with Travelpayouts when marker is set', () => {
-      configService.get.mockReturnValue('12345');
+    it('should wrap one-way search URL with tp.media tracker when marker is set', () => {
+      configService.get.mockReturnValue('707165');
 
       const deeplink = service.buildDeeplink({
         origin: 'ICN',
@@ -70,10 +32,29 @@ describe('DeeplinkService', () => {
       });
 
       expect(deeplink).toContain('https://tp.media/r?');
-      expect(deeplink).toContain('marker=12345');
+      expect(deeplink).toContain('marker=707165');
       expect(deeplink).toContain('p=4114');
-      expect(deeplink).toContain('u=');
-      expect(deeplink).toContain(encodeURIComponent('search.aviasales.com'));
+      // Target URL uses compact params: ICN0104NRT1
+      expect(deeplink).toContain(
+        encodeURIComponent('https://www.aviasales.com/?params=ICN0104NRT1'),
+      );
+    });
+
+    it('should include return date in compact params for round-trip', () => {
+      configService.get.mockReturnValue('707165');
+
+      const deeplink = service.buildDeeplink({
+        origin: 'ICN',
+        destination: 'KIX',
+        departureDate: '2026-04-01',
+        returnDate: '2026-04-07',
+        adults: 2,
+      });
+
+      // ICN0104KIX07042
+      expect(deeplink).toContain(
+        encodeURIComponent('https://www.aviasales.com/?params=ICN0104KIX07042'),
+      );
     });
 
     it('should return raw Aviasales URL when marker is not set', () => {
@@ -86,7 +67,7 @@ describe('DeeplinkService', () => {
         adults: 1,
       });
 
-      expect(deeplink).toContain('https://search.aviasales.com/flights/');
+      expect(deeplink).toBe('https://www.aviasales.com/?params=ICN0104NRT1');
       expect(deeplink).not.toContain('tp.media');
     });
 
@@ -100,7 +81,7 @@ describe('DeeplinkService', () => {
         adults: 1,
       });
 
-      expect(deeplink).toContain('https://search.aviasales.com/flights/');
+      expect(deeplink).toBe('https://www.aviasales.com/?params=ICN0104NRT1');
       expect(deeplink).not.toContain('tp.media');
     });
   });

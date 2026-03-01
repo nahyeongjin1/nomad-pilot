@@ -13,36 +13,7 @@ interface DeeplinkParams {
 export class DeeplinkService {
   constructor(private readonly configService: ConfigService) {}
 
-  buildSearchUrl(params: DeeplinkParams): string {
-    const {
-      origin,
-      destination,
-      departureDate,
-      returnDate,
-      adults = 1,
-    } = params;
-    const isOneWay = !returnDate;
-
-    const query = new URLSearchParams({
-      origin_iata: origin,
-      destination_iata: destination,
-      depart_date: departureDate,
-      adults: String(adults),
-      children: '0',
-      infants: '0',
-      trip_class: '0',
-      one_way: String(isOneWay),
-      locale: 'ko',
-      currency: 'KRW',
-    });
-
-    if (returnDate) {
-      query.set('return_date', returnDate);
-    }
-
-    return `https://search.aviasales.com/flights/?${query.toString()}`;
-  }
-
+  /** Build Aviasales affiliate deeplink via tp.media tracker */
   buildDeeplink(params: DeeplinkParams): string {
     const searchUrl = this.buildSearchUrl(params);
     const marker = this.configService.get<string>('TRAVELPAYOUTS_MARKER');
@@ -59,5 +30,31 @@ export class DeeplinkService {
     });
 
     return `https://tp.media/r?${query.toString()}`;
+  }
+
+  private buildSearchUrl(params: DeeplinkParams): string {
+    const {
+      origin,
+      destination,
+      departureDate,
+      returnDate,
+      adults = 1,
+    } = params;
+
+    // Aviasales compact params: {origin}{DDMM}{dest}{DDMM_return?}{adults}
+    const depDDMM = this.toDDMM(departureDate);
+    let compact = `${origin}${depDDMM}${destination}`;
+    if (returnDate) {
+      compact += this.toDDMM(returnDate);
+    }
+    compact += String(adults);
+
+    return `https://www.aviasales.com/?params=${compact}`;
+  }
+
+  /** Convert YYYY-MM-DD to DDMM */
+  private toDDMM(date: string): string {
+    const [, month, day] = date.split('-');
+    return `${day}${month}`;
   }
 }
