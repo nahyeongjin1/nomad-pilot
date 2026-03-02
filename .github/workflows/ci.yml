@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['apps/backend/**', 'packages/shared/**', 'pnpm-lock.yaml']
+  push:
+    branches: [main]
+    paths: ['apps/backend/**', 'packages/shared/**', 'pnpm-lock.yaml']
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @nomad-pilot/backend lint
+      - run: pnpm --filter @nomad-pilot/backend build
+      - run: pnpm --filter @nomad-pilot/backend test

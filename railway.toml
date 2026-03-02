@@ -1,8 +1,11 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "apps/backend/Dockerfile"
+watchPatterns = ["apps/backend/**", "packages/shared/**", "pnpm-lock.yaml"]
 
 [deploy]
+preDeployCommand = "node ./node_modules/typeorm/cli.js migration:run -d apps/backend/dist/database/data-source.js"
 healthcheckPath = "/api/v1"
+healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 10
