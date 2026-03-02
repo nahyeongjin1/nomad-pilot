@@ -86,7 +86,7 @@ Railway 공식 config-as-code 기반. `preDeployCommand`로 마이그레이션 �
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "apps/backend/Dockerfile"
-watchPatterns = ["apps/backend/**", "packages/shared/**", "pnpm-lock.yaml", "package.json", "pnpm-workspace.yaml"]
+watchPatterns = ["apps/backend/**", "packages/shared/**", "pnpm-lock.yaml", "package.json", "pnpm-workspace.yaml", ".npmrc"]
 
 [deploy]
 preDeployCommand = "node ./apps/backend/node_modules/typeorm/cli.js migration:run -d apps/backend/dist/database/data-source.js"
