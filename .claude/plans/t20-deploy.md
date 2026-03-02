@@ -15,7 +15,7 @@ T06a(항공 API) 완료 후 다음 단계. 현재 상태:
 ```text
 PR → GitHub Actions CI (lint + build + test)
       ↓ pass
-main merge → Railway auto-deploy (Watch Paths: apps/backend/**)
+main merge → Railway auto-deploy (Watch Paths: backend + shared + root manifests)
               ↓
             Docker build (Dockerfile)
               ↓
@@ -25,7 +25,7 @@ main merge → Railway auto-deploy (Watch Paths: apps/backend/**)
 ```
 
 - **Railway "Wait for CI"**: GitHub Actions 성공 후에만 배포 트리거
-- **Railway "Watch Paths"**: `apps/backend/**` 변경 시에만 배포 (프론트 변경 무시)
+- **Railway "Watch Paths"**: `apps/backend/**`, `packages/shared/**`, 루트 매니페스트 변경 시 배포 (프론트 변경 무시)
 - **Railway "preDeployCommand"**: 마이그레이션을 앱 시작 전에 실행 (실패 시 배포 중단)
 
 ## 구현 순서
@@ -86,10 +86,10 @@ Railway 공식 config-as-code 기반. `preDeployCommand`로 마이그레이션 �
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "apps/backend/Dockerfile"
-watchPatterns = ["apps/backend/**", "packages/shared/**", "pnpm-lock.yaml"]
+watchPatterns = ["apps/backend/**", "packages/shared/**", "pnpm-lock.yaml", "package.json", "pnpm-workspace.yaml"]
 
 [deploy]
-preDeployCommand = "node ./node_modules/typeorm/cli.js migration:run -d apps/backend/dist/database/data-source.js"
+preDeployCommand = "node ./apps/backend/node_modules/typeorm/cli.js migration:run -d apps/backend/dist/database/data-source.js"
 healthcheckPath = "/api/v1"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
