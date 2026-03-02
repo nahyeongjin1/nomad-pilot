@@ -316,21 +316,23 @@ describe('AmadeusService', () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = 'production';
 
-      const emptyConfigService = {
-        get: jest.fn(() => undefined),
-      };
+      try {
+        const emptyConfigService = {
+          get: jest.fn(() => undefined),
+        };
 
-      expect(
-        () =>
-          new AmadeusService(
-            httpService as unknown as HttpService,
-            emptyConfigService as unknown as ConfigService,
-          ),
-      ).toThrow(
-        'AMADEUS_CLIENT_ID and AMADEUS_CLIENT_SECRET must be configured',
-      );
-
-      process.env.NODE_ENV = originalEnv;
+        expect(
+          () =>
+            new AmadeusService(
+              httpService as unknown as HttpService,
+              emptyConfigService as unknown as ConfigService,
+            ),
+        ).toThrow(
+          'AMADEUS_CLIENT_ID and AMADEUS_CLIENT_SECRET must be configured',
+        );
+      } finally {
+        process.env.NODE_ENV = originalEnv;
+      }
     });
 
     it('should throw ServiceUnavailableException on 429', async () => {

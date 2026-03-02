@@ -16,7 +16,8 @@ export class DeeplinkService {
   /** Build Aviasales affiliate deeplink via tp.media tracker */
   buildDeeplink(params: DeeplinkParams): string {
     const searchUrl = this.buildSearchUrl(params);
-    const marker = this.configService.get<string>('TRAVELPAYOUTS_MARKER');
+    const marker =
+      this.configService.get<string>('TRAVELPAYOUTS_MARKER')?.trim() || '';
 
     if (!marker) {
       return searchUrl;

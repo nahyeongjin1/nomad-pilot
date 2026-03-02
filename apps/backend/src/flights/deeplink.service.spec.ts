@@ -84,5 +84,19 @@ describe('DeeplinkService', () => {
       expect(deeplink).toBe('https://www.aviasales.com/?params=ICN0104NRT1');
       expect(deeplink).not.toContain('tp.media');
     });
+
+    it('should return raw Aviasales URL when marker is whitespace-only', () => {
+      configService.get.mockReturnValue('   ');
+
+      const deeplink = service.buildDeeplink({
+        origin: 'ICN',
+        destination: 'NRT',
+        departureDate: '2026-04-01',
+        adults: 1,
+      });
+
+      expect(deeplink).toBe('https://www.aviasales.com/?params=ICN0104NRT1');
+      expect(deeplink).not.toContain('tp.media');
+    });
   });
 });

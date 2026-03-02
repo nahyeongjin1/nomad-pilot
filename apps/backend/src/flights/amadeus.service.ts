@@ -143,7 +143,10 @@ export class AmadeusService {
       this.httpService.post<AmadeusTokenResponse>(
         `${this.baseUrl}/v1/security/oauth2/token`,
         body,
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          timeout: 10_000,
+        },
       ),
     );
 
