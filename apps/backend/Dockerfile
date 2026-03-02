@@ -19,7 +19,8 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/backend/package.json ./apps/backend/
 COPY packages/shared/package.json ./packages/shared/
-RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts \
+    && mkdir -p apps/backend/node_modules packages/shared/node_modules
 
 # --- Stage 3: Build ---
 FROM node:22-slim AS build
