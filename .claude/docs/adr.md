@@ -46,3 +46,6 @@
 | 2026-03-01 | 캐싱: 인메모리 우선                              | ADR에 따라 Redis는 동시 사용자 증가 시 도입. MVP는 @nestjs/cache-manager 기본 store로 시작                                                         |
 | 2026-03-02 | 딥링크: Aviasales compact URL + tp.media         | `search.aviasales.com/flights/`와 `/searches/new` 모두 리다이렉트 실패. `aviasales.com/?params=` compact 포맷 사용. tp.media/r로 어필리에이트 추적 |
 | 2026-03-02 | Aviasales locale: 자동 감지                      | compact URL은 locale/currency 파라미터 미지원. ko/KRW도 Aviasales 미지원. 브라우저 기반 자동 감지(en/USD) 사용                                     |
+| 2026-03-02 | CI: GitHub Actions (lint+build+test)             | PR/push 시 자동 실행. path filter로 backend 변경분만 트리거. Railway "Wait for CI" 연동                                                            |
+| 2026-03-02 | 마이그레이션: Railway preDeployCommand           | entrypoint.sh 대신 Railway 공식 preDeployCommand 사용. 실패 시 배포 자체 중단. 앱 시작과 분리                                                      |
+| 2026-03-02 | T20 선행: CI/CD 우선 구축                        | T06a 완료 후 배포 파이프라인 부재. 이후 태스크 배포 검증을 위해 인프라 선행                                                                        |
