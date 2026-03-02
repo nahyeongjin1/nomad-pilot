@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { CitiesModule } from './cities/cities.module';
 import { PoisModule } from './pois/pois.module';
 import { TripsModule } from './trips/trips.module';
+import { FlightsModule } from './flights/flights.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { TripsModule } from './trips/trips.module';
     CitiesModule,
     PoisModule,
     TripsModule,
+    FlightsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

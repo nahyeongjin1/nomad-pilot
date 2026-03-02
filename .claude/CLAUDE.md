@@ -65,10 +65,14 @@ pnpm start:dev    # http://localhost:3000/api/v1
 모든 기능은 **Red → Green → Refactor** 순서로 개발.
 
 ```bash
-pnpm test              # 단위 테스트 (Jest)
+pnpm test              # 전체 단위 테스트 (Jest)
 pnpm test:watch        # 워치 모드
 pnpm test:e2e          # E2E 테스트
 pnpm test:cov          # 커버리지
+
+# 특정 테스트 파일만 실행 (pnpm -- 전달 문제로 npx jest 직접 사용)
+cd apps/backend && npx jest --testPathPatterns='파일명' --no-coverage
+# 예: npx jest --testPathPatterns='deeplink.service' --no-coverage
 ```
 
 - **서비스 로직:** 단위 테스트 (mock 의존성)
