@@ -48,4 +48,5 @@
 | 2026-03-02 | Aviasales locale: 자동 감지                      | compact URL은 locale/currency 파라미터 미지원. ko/KRW도 Aviasales 미지원. 브라우저 기반 자동 감지(en/USD) 사용                                     |
 | 2026-03-02 | CI: GitHub Actions (lint+build+test)             | PR/push 시 자동 실행. path filter로 backend 변경분만 트리거. Railway "Wait for CI" 연동                                                            |
 | 2026-03-02 | 마이그레이션: Railway preDeployCommand           | entrypoint.sh 대신 Railway 공식 preDeployCommand 사용. 실패 시 배포 자체 중단. 앱 시작과 분리                                                      |
+| 2026-03-02 | Docker: 4-stage 빌드 패턴                        | pnpm monorepo에서 husky prepare가 prod install 시 실패. prod-deps 별도 단계 + --ignore-scripts 적용. pnpm 공식 Docker 가이드 기반                  |
 | 2026-03-02 | T20 선행: CI/CD 우선 구축                        | T06a 완료 후 배포 파이프라인 부재. 이후 태스크 배포 검증을 위해 인프라 선행                                                                        |
