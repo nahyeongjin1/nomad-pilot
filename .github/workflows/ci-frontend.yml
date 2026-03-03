@@ -9,6 +9,7 @@ on:
       - 'pnpm-lock.yaml'
       - 'package.json'
       - 'pnpm-workspace.yaml'
+      - 'eslint.config.ts'
       - '.github/workflows/ci-frontend.yml'
       - '.npmrc'
   push:
@@ -19,6 +20,7 @@ on:
       - 'pnpm-lock.yaml'
       - 'package.json'
       - 'pnpm-workspace.yaml'
+      - 'eslint.config.ts'
       - '.github/workflows/ci-frontend.yml'
       - '.npmrc'
 
