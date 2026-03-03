@@ -46,46 +46,18 @@
 
 ## 개발 워크플로우
 
-### 로컬 개발 환경
-
 ```bash
-# 1. DB 기동
-docker compose up -d
+# 전체 (백엔드 + 프론트엔드 동시 기동)
+pnpm dev              # concurrently: be(3000) + fe(5173)
 
-# 2. 마이그레이션 (premigration 훅이 자동 빌드)
-pnpm migration:run
+# 개별
+pnpm dev:be           # 백엔드만
+pnpm dev:fe           # 프론트엔드만
 
-# 3. 개발 서버
-pnpm start:dev    # http://localhost:3000/api/v1
-                  # Swagger: http://localhost:3000/docs
+# 빌드 / 테스트 / 린트
+pnpm build            # 백엔드 + 프론트엔드 순차 빌드
+pnpm test             # 백엔드 + 프론트엔드 순차 테스트
+pnpm lint             # ESLint (백엔드 + 프론트엔드)
 ```
 
-### TDD 사이클
-
-모든 기능은 **Red → Green → Refactor** 순서로 개발.
-
-```bash
-pnpm test              # 전체 단위 테스트 (Jest)
-pnpm test:watch        # 워치 모드
-pnpm test:e2e          # E2E 테스트
-pnpm test:cov          # 커버리지
-
-# 특정 테스트 파일만 실행 (pnpm -- 전달 문제로 npx jest 직접 사용)
-cd apps/backend && npx jest --testPathPatterns='파일명' --no-coverage
-# 예: npx jest --testPathPatterns='deeplink.service' --no-coverage
-```
-
-- **서비스 로직:** 단위 테스트 (mock 의존성)
-- **컨트롤러:** E2E 테스트 (supertest, 실제 HTTP 요청)
-- **DB 쿼리:** 통합 테스트 (Docker PostGIS 연결)
-
-### 마이그레이션 워크플로우
-
-```bash
-# 엔티티 코드 작성/변경 후 (premigration 훅이 자동 빌드하므로 pnpm build 불필요)
-npm_config_name=DescriptiveName pnpm -F backend migration:generate  # 자동 생성 (엔티티↔DB 비교)
-pnpm -F backend migration:run                                       # 적용
-
-# PostGIS 확장 등 엔티티 무관 작업
-npm_config_name=ManualMigration pnpm -F backend migration:create    # 빈 파일 생성 → 수동 작성
-```
+백엔드/프론트엔드별 상세 명령어는 각 `apps/*/CLAUDE.md` 참조.

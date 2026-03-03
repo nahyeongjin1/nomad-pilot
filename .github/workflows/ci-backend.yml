@@ -1,4 +1,4 @@
-name: CI
+name: CI Backend
 
 on:
   pull_request:
@@ -9,7 +9,8 @@ on:
       - 'pnpm-lock.yaml'
       - 'package.json'
       - 'pnpm-workspace.yaml'
-      - '.github/workflows/ci.yml'
+      - 'eslint.config.ts'
+      - '.github/workflows/ci-backend.yml'
       - '.npmrc'
   push:
     branches: [main]
@@ -19,7 +20,8 @@ on:
       - 'pnpm-lock.yaml'
       - 'package.json'
       - 'pnpm-workspace.yaml'
-      - '.github/workflows/ci.yml'
+      - 'eslint.config.ts'
+      - '.github/workflows/ci-backend.yml'
       - '.npmrc'
 
 jobs:

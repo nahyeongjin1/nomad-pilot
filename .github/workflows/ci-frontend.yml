@@ -1,0 +1,40 @@
+name: CI Frontend
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/frontend/**'
+      - 'packages/shared/**'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - 'eslint.config.ts'
+      - '.github/workflows/ci-frontend.yml'
+      - '.npmrc'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/frontend/**'
+      - 'packages/shared/**'
+      - 'pnpm-lock.yaml'
+      - 'package.json'
+      - 'pnpm-workspace.yaml'
+      - 'eslint.config.ts'
+      - '.github/workflows/ci-frontend.yml'
+      - '.npmrc'
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @nomad-pilot/frontend lint
+      - run: pnpm --filter @nomad-pilot/frontend build
+      - run: pnpm --filter @nomad-pilot/frontend test
