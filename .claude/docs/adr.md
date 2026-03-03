@@ -54,3 +54,5 @@
 | 2026-03-02 | 라우팅: TanStack Router                          | search params Zod 검증+타입 추론, hover 프리페칭(`defaultPreload: 'intent'`), TanStack Query 네이티브 통합. 여행 검색 URL 파라미터 다수라 타입 안전 필수 |
 | 2026-03-02 | 서버 상태: TanStack Query + 3층 캐싱             | 인메모리→IndexedDB 영속→SW(Workbox) 3층 구조. `networkMode: 'offlineFirst'`, 오프라인 뮤테이션 일시정지+재개. 해외 제한된 데이터 대응                    |
 | 2026-03-02 | PWA: vite-plugin-pwa (Workbox)                   | Vite 네이티브 통합, generateSW 제로 설정. 런타임 캐싱(CacheFirst/NetworkFirst) API별 전략 분리. MVP 후 injectManifest 전환 가능                          |
+| 2026-03-03 | 숙소 제휴: MVP에서 제외                          | Travelpayouts에서 Agoda/Booking/Hotels.com/Expedia 등 숙소 제휴 반려 (트래픽 부족). 숙소 검색은 제휴 없이 일반 링크로 구현, 트래픽 확보 후 재신청        |
+| 2026-03-03 | Travelpayouts 사용 가능: Aviasales, Kiwi, Klook  | 항공(Aviasales) 유지, Klook(투어/액티비티) 활용 가능. 숙소 수익화는 Phase 2로 이연                                                                       |

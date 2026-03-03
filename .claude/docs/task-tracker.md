@@ -17,7 +17,7 @@
 | T04  | POI 검색 설계 (pg_trgm)                 | ✅   | .claude/plans/t04-poi-search.md   |
 | T05  | 일본 POI 데이터 파이프라인              | ✅   | .claude/plans/t05-poi-pipeline.md |
 | T06a | 항공 API 연동 (Amadeus + Travelpayouts) | ✅   | .claude/plans/t06a-flight-api.md  |
-| T06b | 숙소 API 연동 (Agoda/Booking)           | ⬜   | -                                 |
+| T06b | 숙소 검색 연동 (제휴 없이 일반 링크)    | ⬜   | -                                 |
 
 ## Core Engine
 
