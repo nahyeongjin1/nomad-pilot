@@ -36,7 +36,7 @@
 | 2026-02-28 | place_id 저장: fire & forget                     | 클라이언트가 비동기 PATCH. POI별 공유 → 커뮤니티 캐시 효과. 실패 시 다음 유저 재매칭                                                                     |
 | 2026-02-28 | Railway 리전: 싱가포르                           | 일본→SG ~50-70ms. 클라이언트 직접 Google 호출이 여전히 우위                                                                                              |
 | 2026-02-28 | 인증: Google + Kakao 소셜 로그인만               | 비밀번호 저장 안 함. 한국인 타겟이라 Kakao 필수 + Google 글로벌 표준. Apple은 Phase 2                                                                    |
-| 2026-02-28 | 가입 벽: Trip 생성 시점                          | 탐색(도시/항공/POI)은 비로그인 허용. Trip 저장 시 로그인 요구. 딥링크 수수료는 비로그인도 발생                                                           |
+| 2026-02-28 | 가입 벽: AI 루트 생성 시점                       | 탐색~POI 선택까지 비로그인 허용. AI 루트 생성부터 로그인 필수 (LLM API 비용 추적 + 사용량 제한). 딥링크 수수료는 비로그인도 발생                         |
 | 2026-02-28 | place_id PATCH: 비로그인 허용                    | 멱등성(최초 1회만 저장) + 포맷 검증(non-empty, 불투명 문자열)으로 구조적 안전. rate limit 불필요                                                         |
 | 2026-02-28 | OSM 파이프라인: UPSERT + 비활성화 감지           | ON CONFLICT DO UPDATE. last_synced_at으로 삭제된 POI 감지 → is_active=false. 하드 삭제 안 함                                                             |
 | 2026-02-28 | 이름 우선순위: name:ko 최우선                    | MVP 한국어 사용자 대상. name:ko > name:en > name > name:ja. 향후 로케일별 우선순위 확장 가능                                                             |
