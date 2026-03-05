@@ -63,3 +63,6 @@
 | 2026-03-05 | 폰트: Pretendard JP Variable (CDN)               | 한글+일본어+영문 통합 가변 폰트. tnum 기본 활성(가격/날짜). jsDelivr CDN + preconnect. SW 캐싱은 T15c                                                    |
 | 2026-03-05 | 브랜드 컬러: Teal 600 oklch 기반                 | `--primary` Teal 교체 + `--brand-50~950` 팔레트. Tailwind `bg-brand-600/80` 패턴. 다크모드 MVP 제외                                                      |
 | 2026-03-05 | 레이아웃: `_app.tsx` 패스리스 레이아웃           | AppLayout(헤더+바텀네비) 감싼 패스리스 라우트. URL에 `_app` 미노출. 4탭 하위 라우트 `_app/` 디렉토리                                                     |
+| 2026-03-05 | PWA: generateSW + autoUpdate                     | generateSW 제로 설정. T14 Web Push 시 injectManifest 전환. autoUpdate로 사용자 개입 없이 SW 갱신                                                         |
+| 2026-03-05 | 런타임 캐싱: Pretendard JP 폰트만                | jsDelivr CDN CacheFirst 1년. API/이미지 캐싱은 각 화면 구현 시 결정. 앱 설치는 브라우저 기본 UI만                                                        |
+| 2026-03-05 | Vercel SW 캐시: 배포 후 확인 원칙                | sw.js에 장기 Cache-Control 설정 시 vercel.json 헤더 오버라이드. 배포 후 Network 탭 확인                                                                  |

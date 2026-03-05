@@ -43,7 +43,7 @@
 | ---- | ----------------------------------------------- | ---- | ------------------------------------ |
 | T15a | 프론트 프로젝트 셋업 + Vercel 배포              | ✅   | .claude/plans/t15a-frontend-setup.md |
 | T15b | 레이아웃 + 디자인 시스템 (shadcn/ui + Tailwind) | ✅   | .claude/plans/t15b-layout-design.md  |
-| T15c | PWA 기초 설정 (manifest, SW, 앱 설치)           | ⬜   | -                                    |
+| T15c | PWA 기초 설정 (manifest, SW, 앱 설치)           | ✅   | .claude/plans/t15c-pwa-setup.md      |
 | T21  | 도시 탐색 화면                                  | ⬜   | -                                    |
 | T22  | 항공편 검색 화면                                | ⬜   | -                                    |
 | T16  | 지도 + POI 탐색 화면                            | ⬜   | -                                    |
