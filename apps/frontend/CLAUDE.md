@@ -20,6 +20,19 @@ pnpm test:fe             # Vitest run
 pnpm -F @nomad-pilot/frontend test:watch  # Vitest watch
 ```
 
+## 디자인 시스템
+
+- **폰트:** Pretendard JP Variable (CDN, `@theme --font-sans` 오버라이드). `tnum` 기본 활성 (가격/날짜 정렬)
+- **컬러:** Teal 600 기반 브랜드 컬러. `bg-brand-600`, `text-brand-500`, opacity: `bg-brand-600/80`
+- **아이콘:** lucide-react (shadcn/ui 공식). `import { IconName } from 'lucide-react'`
+- **다크모드:** MVP 제외 (라이트만)
+
+## 레이아웃 & 라우트
+
+- **레이아웃:** `_app.tsx` 패스리스 레이아웃 라우트 → `AppLayout` (헤더 + 바텀 네비)
+- **바텀 네비 4탭:** 탐색(`/`) · 플래닝(`/planning`) · 내 여행(`/trips`) · 마이(`/my`)
+- **라우트 구조:** `src/routes/_app/index.tsx`, `planning.tsx`, `trips.tsx`, `my.tsx`
+
 ## 컨벤션
 
 - `@/` alias = `src/` (tsconfig paths + vite resolve alias)

@@ -56,3 +56,10 @@
 | 2026-03-02 | PWA: vite-plugin-pwa (Workbox)                   | Vite 네이티브 통합, generateSW 제로 설정. 런타임 캐싱(CacheFirst/NetworkFirst) API별 전략 분리. MVP 후 injectManifest 전환 가능                          |
 | 2026-03-03 | 숙소 제휴: MVP에서 제외                          | Travelpayouts에서 Agoda/Booking/Hotels.com/Expedia 등 숙소 제휴 반려 (트래픽 부족). 숙소 검색은 제휴 없이 일반 링크로 구현, 트래픽 확보 후 재신청        |
 | 2026-03-03 | Travelpayouts 사용 가능: Aviasales, Kiwi, Klook  | 항공(Aviasales) 유지, Klook(투어/액티비티) 활용 가능. 숙소 수익화는 Phase 2로 이연                                                                       |
+| 2026-03-05 | 바텀 네비: 4탭 구성                              | 탐색 / 플래닝 / 내 여행 / 마이. 탐색(비로그인 핵심), 플래닝(가이드 퍼널), 내 여행(로그인 필요), 마이(프로필/설정)                                        |
+| 2026-03-05 | 탐색: 도시 중심 구조                             | 도시 카드 목록 → 도시 상세(항공\|POI\|숙소 스와이프 탭 + 터치 전환). 도시 안에서 모든 정보 탐색. 비로그인 자유 접근                                      |
+| 2026-03-05 | 플래닝: 7단계 순차 퍼널                          | 예산→도시추천→도시선택/항공→POI선택→AI루트→숙소→총금액. 순차 뒤로가기만 허용. 탐색에서 "여행 만들기" 시 도시 프리필 진입                                 |
+| 2026-03-05 | 퍼널 중간 저장: 로컬만                           | 퍼널 도중 이탈 시 로컬 저장으로 복귀 가능. DB 저장은 퍼널 완료(Trip 생성) 시점에만. 정합성 문제 회피                                                     |
+| 2026-03-05 | 폰트: Pretendard JP Variable (CDN)               | 한글+일본어+영문 통합 가변 폰트. tnum 기본 활성(가격/날짜). jsDelivr CDN + preconnect. SW 캐싱은 T15c                                                    |
+| 2026-03-05 | 브랜드 컬러: Teal 600 oklch 기반                 | `--primary` Teal 교체 + `--brand-50~950` 팔레트. Tailwind `bg-brand-600/80` 패턴. 다크모드 MVP 제외                                                      |
+| 2026-03-05 | 레이아웃: `_app.tsx` 패스리스 레이아웃           | AppLayout(헤더+바텀네비) 감싼 패스리스 라우트. URL에 `_app` 미노출. 4탭 하위 라우트 `_app/` 디렉토리                                                     |
