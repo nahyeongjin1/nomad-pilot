@@ -15,16 +15,16 @@ T15b(레이아웃+디자인 시스템) 완료 후, 실제 화면 작업 전에 P
 
 ## 구현 순서
 
-| 단계 | 작업                            | 주요 파일                                          |
-| ---- | ------------------------------- | -------------------------------------------------- |
-| 0    | 브랜치 생성 + task-tracker 🔄   | -                                                  |
-| 1    | vite-plugin-pwa 설치 + 설정     | `package.json`, `vite.config.ts`                   |
-| 2    | Web App Manifest 설정           | `vite.config.ts` (manifest 옵션)                   |
-| 3    | Placeholder 아이콘 생성         | `public/pwa-192x192.png`, `public/pwa-512x512.png` |
-| 4    | index.html meta 태그 추가       | `index.html`                                       |
-| 5    | SW 등록 코드                    | `src/main.tsx` 또는 `src/pwa.ts`                   |
-| 6    | 검증 + 테스트                   | -                                                  |
-| 7    | 문서 업데이트 + task-tracker ✅ | CLAUDE.md, ADR                                     |
+| 단계 | 작업                                                      | 주요 파일                                          |
+| ---- | --------------------------------------------------------- | -------------------------------------------------- |
+| 0    | 브랜치 생성 + task-tracker 🔄                             | -                                                  |
+| 1    | vite-plugin-pwa 설치 + 설정                               | `package.json`, `vite.config.ts`                   |
+| 2    | Web App Manifest 설정                                     | `vite.config.ts` (manifest 옵션)                   |
+| 3    | Placeholder 아이콘 생성                                   | `public/pwa-192x192.png`, `public/pwa-512x512.png` |
+| 4    | index.html meta 태그 추가                                 | `index.html`                                       |
+| 5    | SW 등록 (autoUpdate 자동 주입, 선택: 디버깅 시 수동 등록) | `src/vite-env.d.ts`                                |
+| 6    | 검증 + 테스트                                             | -                                                  |
+| 7    | 문서 업데이트 + task-tracker ✅                           | CLAUDE.md, ADR                                     |
 
 ## 단계별 상세
 
