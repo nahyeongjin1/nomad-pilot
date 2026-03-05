@@ -16,7 +16,8 @@ export function BottomNav() {
           <Link
             key={to}
             to={to}
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 text-muted-foreground [&.active]:text-brand-600"
+            activeOptions={{ exact: to === '/' }}
+            className="flex flex-1 flex-col items-center justify-center gap-0.5 text-muted-foreground data-[status=active]:text-brand-600"
           >
             <Icon className="size-5" />
             <span className="text-[10px] font-medium">{label}</span>

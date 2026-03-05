@@ -1,13 +1,13 @@
 import { Outlet } from '@tanstack/react-router';
 
-import { AppHeader } from './app-header';
-import { BottomNav } from './bottom-nav';
+import { AppHeader } from '@/components/layout/app-header';
+import { BottomNav } from '@/components/layout/bottom-nav';
 
 export function AppLayout() {
   return (
     <div className="flex min-h-screen flex-col">
       <AppHeader />
-      <main className="flex-1 pb-16">
+      <main className="flex-1 pb-[calc(4rem+env(safe-area-inset-bottom))]">
         <Outlet />
       </main>
       <BottomNav />
