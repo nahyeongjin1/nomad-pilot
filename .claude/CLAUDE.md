@@ -26,7 +26,7 @@
 
 ## 의사결정 로그 (ADR)
 
-@docs/adr.md
+상세 조회: `.claude/docs/adr.md` (skill: `/adr`)
 
 ---
 
