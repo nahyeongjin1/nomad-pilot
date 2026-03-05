@@ -17,7 +17,8 @@ export default defineConfig({
         navigateFallback: '/',
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/.*/i,
+            urlPattern:
+              /^https:\/\/cdn\.jsdelivr\.net\/.*pretendard.*\.(css|woff2)$/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'pretendard-font-cache',

@@ -176,7 +176,7 @@ registerSW({
 - Chrome DevTools → Application 탭:
   - Service Workers: 등록 + activated 상태
   - Manifest: 아이콘, 이름, 색상 정상
-  - Cache Storage: precache + font-cache 확인
+  - Cache Storage: precache + pretendard-font-cache 확인
 - Lighthouse PWA audit 실행
 - **sw.js 응답 헤더 확인**: Network 탭에서 sw.js의 `Cache-Control` 확인. `max-age`가 긴 경우 `vercel.json` 헤더 오버라이드 필요:
 
