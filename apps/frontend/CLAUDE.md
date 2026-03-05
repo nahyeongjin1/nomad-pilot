@@ -33,6 +33,14 @@ pnpm -F @nomad-pilot/frontend test:watch  # Vitest watch
 - **바텀 네비 4탭:** 탐색(`/`) · 플래닝(`/planning`) · 내 여행(`/trips`) · 마이(`/my`)
 - **라우트 구조:** `src/routes/_app/index.tsx`, `planning.tsx`, `trips.tsx`, `my.tsx`
 
+## PWA
+
+- **플러그인:** vite-plugin-pwa (generateSW, autoUpdate)
+- **Precache:** `**/*.{js,css,html,ico,png,svg,woff2}` + navigateFallback `/`
+- **런타임 캐싱:** jsDelivr CDN (Pretendard JP) CacheFirst 1년
+- **아이콘 교체:** `public/pwa-192x192.png`, `public/pwa-512x512.png` 동일 파일명 덮어쓰기
+- **주의:** dev 서버에서 SW 미등록. `pnpm preview` 또는 빌드 후 확인
+
 ## 컨벤션
 
 - `@/` alias = `src/` (tsconfig paths + vite resolve alias)
