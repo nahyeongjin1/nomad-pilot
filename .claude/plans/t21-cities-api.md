@@ -207,8 +207,9 @@ interface AmadeusFlightDestination {
 1. Travelpayouts `/v2/prices/latest` 호출 — ICN, GMP 두 번 호출 (Promise.all)
 2. DB에서 활성 도시 목록 조회 (iataCodes 포함)
 3. 두 origin의 응답을 합치고, 도시별 IATA 코드로 필터링, 도시당 최저가 추출
-4. Travelpayouts에 데이터 없는 도시 → Amadeus Flight Inspiration Search fallback (ICN 기준)
-5. 인메모리 캐시 3시간 TTL (`cacheManager.set(key, value, 10_800_000)` — 명시적 TTL 전달, FlightsModule 기본 15분과 별개)
+4. Travelpayouts에 데이터 없는 도시 → Amadeus Flight Inspiration Search fallback (ICN 기준). Amadeus도 실패 시 해당 도시는 `lowestPrice: null`로 반환 (graceful degradation)
+5. 전체 API 실패 시에도 도시 목록은 정상 반환하되 모든 가격이 null. 부분 실패 시 성공한 데이터는 정상 반환
+6. 인메모리 캐시 3시간 TTL (`cacheManager.set(key, value, 10_800_000)` — 명시적 TTL 전달, FlightsModule 기본 15분과 별개)
 
 **응답 DTO:**
 
@@ -234,7 +235,7 @@ class LowestPricesResponseDto {
 
 **캐싱 전략:**
 
-- 캐시 키: `lowest-prices:ICN,GMP`
+- 캐시 키: `lowest-prices:ICN,GMP` (origin 배열을 정렬 후 join하여 순서 무관하게 동일 키 보장)
 - TTL: 3시간 (10,800,000ms)
 - `cacheManager.set()` 호출 시 TTL 명시적 전달 (FlightsModule CacheModule 기본 TTL 15분과 별개)
 - Travelpayouts 원본이 48시간 캐시이므로 3시간은 충분히 신선
