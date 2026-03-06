@@ -12,12 +12,13 @@
 
 ## Search & Data
 
-| ID   | 태스크                                  | 상태 | 계획서                            |
-| ---- | --------------------------------------- | ---- | --------------------------------- |
-| T04  | POI 검색 설계 (pg_trgm)                 | ✅   | .claude/plans/t04-poi-search.md   |
-| T05  | 일본 POI 데이터 파이프라인              | ✅   | .claude/plans/t05-poi-pipeline.md |
-| T06a | 항공 API 연동 (Amadeus + Travelpayouts) | ✅   | .claude/plans/t06a-flight-api.md  |
-| T06b | 숙소 검색 연동 (제휴 없이 일반 링크)    | ⬜   | -                                 |
+| ID   | 태스크                                   | 상태 | 계획서                            |
+| ---- | ---------------------------------------- | ---- | --------------------------------- |
+| T04  | POI 검색 설계 (pg_trgm)                  | ✅   | .claude/plans/t04-poi-search.md   |
+| T05  | 일본 POI 데이터 파이프라인               | ✅   | .claude/plans/t05-poi-pipeline.md |
+| T06a | 항공 API 연동 (Amadeus + Travelpayouts)  | ✅   | .claude/plans/t06a-flight-api.md  |
+| T06b | 숙소 검색 연동 (제휴 없이 일반 링크)     | ⬜   | -                                 |
+| T21  | Cities API (목록 조회 + 이미지 + 최저가) | 🔄   | .claude/plans/t21-cities-api.md   |
 
 ## Core Engine
 
@@ -39,14 +40,14 @@
 
 ## Frontend
 
-| ID   | 태스크                                          | 상태 | 계획서                               |
-| ---- | ----------------------------------------------- | ---- | ------------------------------------ |
-| T15a | 프론트 프로젝트 셋업 + Vercel 배포              | ✅   | .claude/plans/t15a-frontend-setup.md |
-| T15b | 레이아웃 + 디자인 시스템 (shadcn/ui + Tailwind) | ✅   | .claude/plans/t15b-layout-design.md  |
-| T15c | PWA 기초 설정 (manifest, SW, 앱 설치)           | ✅   | .claude/plans/t15c-pwa-setup.md      |
-| T21  | 도시 탐색 화면                                  | ⬜   | -                                    |
-| T22  | 항공편 검색 화면                                | ⬜   | -                                    |
-| T16  | 지도 + POI 탐색 화면                            | ⬜   | -                                    |
+| ID   | 태스크                                                 | 상태 | 계획서                               |
+| ---- | ------------------------------------------------------ | ---- | ------------------------------------ |
+| T15a | 프론트 프로젝트 셋업 + Vercel 배포                     | ✅   | .claude/plans/t15a-frontend-setup.md |
+| T15b | 레이아웃 + 디자인 시스템 (shadcn/ui + Tailwind)        | ✅   | .claude/plans/t15b-layout-design.md  |
+| T15c | PWA 기초 설정 (manifest, SW, 앱 설치)                  | ✅   | .claude/plans/t15c-pwa-setup.md      |
+| T22  | 도시 탐색 화면 _(Unsplash attribution 링크 조립 필요)_ | ⬜   | -                                    |
+| T23  | 항공편 검색 화면                                       | ⬜   | -                                    |
+| T16  | 지도 + POI 탐색 화면                                   | ⬜   | -                                    |
 
 ## Monetization
 
