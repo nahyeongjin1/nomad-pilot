@@ -11,24 +11,24 @@ T15c(PWA) 완료 후, 프론트엔드 도시 탐색 화면(T22)을 위한 백엔
 - 최저가 캐싱: 인메모리 3시간 TTL (원본이 48시간 캐시라 짧게 잡아도 의미 없음)
 - 출발지: ICN + GMP 복수 출발지 지원 (두 공항 조회 후 도시별 최저가 선택)
 - 이미지: Unsplash API 스크립트로 로컬 1회 조회 → 마이그레이션에 URL + attribution 하드코딩
-- Unsplash attribution 필수: `imageCredit` 필드 추가 ("Photo by {작가명} on Unsplash")
+- Unsplash attribution 필수: `imageAuthorName` + `imageAuthorUrl` 구조화 필드로 저장
 - 도시 설명/태그: MVP 제외
 - 최저가는 DB 저장 안 함 (휘발성 데이터, 인메모리 캐시만)
 
 ## 구현 순서
 
-| 단계 | 작업                                         | 주요 파일                                     |
-| ---- | -------------------------------------------- | --------------------------------------------- |
-| 0    | 브랜치 생성 + task-tracker 🔄                | -                                             |
-| 1    | City 엔티티 확장 (`imageUrl`, `imageCredit`) | `city.entity.ts`, 마이그레이션                |
-| 2    | Unsplash 이미지 조회 스크립트                | `scripts/fetch-city-images.ts`                |
-| 3    | 이미지 URL+credit 시드 마이그레이션          | 마이그레이션 파일                             |
-| 4    | Cities Controller + Service                  | `cities.controller.ts`, `cities.service.ts`   |
-| 5    | Travelpayouts Data API 서비스                | `travelpayouts.service.ts`                    |
-| 6    | Amadeus Flight Inspiration Search 메서드     | `amadeus.service.ts`, `amadeus.interfaces.ts` |
-| 7    | 최저가 API 엔드포인트                        | `flights.controller.ts`, `flights.service.ts` |
-| 8    | 테스트                                       | `*.spec.ts`                                   |
-| 9    | 문서 업데이트 + task-tracker ✅              | CLAUDE.md, ADR, `.env.example`                |
+| 단계 | 작업                                     | 주요 파일                                     |
+| ---- | ---------------------------------------- | --------------------------------------------- |
+| 0    | 브랜치 생성 + task-tracker 🔄            | -                                             |
+| 1    | City 엔티티 확장 (이미지 컬럼)           | `city.entity.ts`, 마이그레이션                |
+| 2    | Unsplash 이미지 조회 스크립트            | `scripts/fetch-city-images.ts`                |
+| 3    | 이미지 시드 마이그레이션                 | 마이그레이션 파일                             |
+| 4    | Cities Controller + Service              | `cities.controller.ts`, `cities.service.ts`   |
+| 5    | Travelpayouts Data API 서비스            | `travelpayouts.service.ts`                    |
+| 6    | Amadeus Flight Inspiration Search 메서드 | `amadeus.service.ts`, `amadeus.interfaces.ts` |
+| 7    | 최저가 API 엔드포인트                    | `flights.controller.ts`, `flights.service.ts` |
+| 8    | 테스트                                   | `*.spec.ts`                                   |
+| 9    | 문서 업데이트 + task-tracker ✅          | CLAUDE.md, ADR, `.env.example`                |
 
 ## 단계별 상세
 
@@ -76,9 +76,9 @@ Unsplash API:
 
 **이 스크립트는 런타임 의존성이 아님.** URL을 찾아주는 도구일 뿐, 결과는 마이그레이션에 하드코딩한다. 환경변수 `UNSPLASH_ACCESS_KEY` 필요 (`.env`에 추가, 런타임에는 불필요).
 
-### 단계 3: 이미지 URL+credit 시드 마이그레이션
+### 단계 3: 이미지 시드 마이그레이션
 
-스크립트 실행 결과로 얻은 URL과 credit을 마이그레이션에 하드코딩:
+스크립트 실행 결과로 얻은 URL과 author 정보를 마이그레이션에 하드코딩:
 
 ```sql
 UPDATE cities SET image_url = 'https://images.unsplash.com/photo-xxx?w=800',
