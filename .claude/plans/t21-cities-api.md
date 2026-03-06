@@ -70,7 +70,7 @@ Unsplash API:
   - `results[0].links.download_location` → 다운로드 추적 URL
 - **Unsplash API 정책 준수:**
   - **Attribution:** authorName + authorUrl을 구조화 데이터로 저장. UTM 파라미터(`?utm_source=nomad_pilot&utm_medium=referral`)는 프론트에서 링크 조립 시 추가
-  - **다운로드 추적:** 스크립트에서 이미지 선택 시 `GET {download_location}` 호출 (API 정책상 필수)
+  - **다운로드 추적:** 스크립트에서 이미지 선택 시 `GET {download_location}` 호출 (API 정책상 필수). 인증 헤더(`Authorization: Client-ID {KEY}`) 포함 필수. `download_location` URL에 이미 포함된 기존 쿼리 파라미터(`ixid` 등)를 보존할 것 — naive string concatenation 금지
 
 **출력 형태:** 콘솔에 도시별 SQL UPDATE 문 생성 → 단계 3 마이그레이션에 복사.
 
@@ -167,7 +167,7 @@ interface TravelpayoutsPrice {
 
 **에러 핸들링:** Travelpayouts 실패 시 빈 배열 반환 (fallback으로 전환). 로그 경고만 출력. **주의:** 에러 로그 시 요청 URL에 포함된 API 토큰이 노출되지 않도록 URL 로깅 금지 또는 토큰 마스킹 처리 필수.
 
-**Rate Limit:** 60 requests/분. 3시간 캐싱 시 하루 최대 8회 호출이므로 넉넉함.
+**Rate Limit:** 60 requests/분. 3시간 캐싱 + ICN/GMP 2회 호출 기준 하루 최대 16회이므로 넉넉함.
 
 **환경변수:** `TRAVELPAYOUTS_API_TOKEN` (Travelpayouts 대시보드에서 발급, 기존 `TRAVELPAYOUTS_MARKER`와 별도)
 
