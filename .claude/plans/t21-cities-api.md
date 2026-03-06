@@ -36,6 +36,7 @@ T15c(PWA) 완료 후, 프론트엔드 도시 탐색 화면(T22)을 위한 백엔
 
 - `feat/t21-cities-api` 브랜치 생성
 - task-tracker T21 → 🔄
+- **Amadeus Flight Inspiration Search 지원 여부 확인:** Test 환경(`test.api.amadeus.com`)에서 `/v1/shopping/flight-destinations` 호출 테스트. 미지원 시 fallback 제외하고 Travelpayouts 단독 사용으로 계획 조정
 
 ### 단계 1: City 엔티티 확장
 
@@ -194,7 +195,7 @@ interface AmadeusFlightDestination {
 }
 ```
 
-**주의:** Amadeus Test 환경(`test.api.amadeus.com`)에서 이 API 지원 여부를 구현 전에 확인해야 함. 미지원 시 fallback 제외하고 Travelpayouts 단독 사용.
+**주의:** Amadeus Test 환경 지원 여부는 단계 0에서 사전 확인. 미지원 시 이 단계 전체 스킵.
 
 ### 단계 7: 최저가 API 엔드포인트
 
