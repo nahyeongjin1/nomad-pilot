@@ -8,41 +8,11 @@ description: CodeRabbit 리뷰 확인. PR의 unresolved 리뷰 스레드를 Grap
    - `$ARGUMENTS`가 있으면 그 번호 사용
    - 없으면 현재 브랜치의 PR을 `gh pr view --json number -q '.number'`로 자동 감지
 2. 레포 정보 가져오기: `gh repo view --json nameWithOwner -q '.nameWithOwner'`에서 owner/repo 추출
-3. GraphQL **1회 호출**로 unresolved 리뷰 스레드를 가져오고, jq에서 severity 추출 + `<details>` 블록 제거까지 처리:
+3. 다음 스크립트를 실행하여 unresolved 리뷰 스레드 조회:
 
 ```bash
-gh api graphql -f query='
-{
-  repository(owner: "OWNER", name: "REPO") {
-    pullRequest(number: PR_NUMBER) {
-      reviewThreads(first: 50) {
-        nodes {
-          isResolved
-          id
-          comments(first: 1) {
-            nodes {
-              path
-              line
-              body
-              id
-            }
-          }
-        }
-      }
-    }
-  }
-}' --jq '
-  [.data.repository.pullRequest.reviewThreads.nodes[]
-   | select(.isResolved == false)
-   | .comments.nodes[0] as $c
-   | {
-       threadId: .id,
-       commentId: $c.id,
-       path: $c.path,
-       line: $c.line,
-       severity: (try ($c.body | capture("(?<s>🔴 Critical|🟠 Major|🟡 Minor|🔵 Trivial)") | .s) catch "Unknown"),
-       body: ($c.body | gsub("(?s)<details>.*?</details>"; "") | sub("^_.*?_\\s*\\|\\s*_.*?_\\n+"; "") | gsub("\n{3,}"; "\n\n") | sub("^\\s+"; "") | .[0:500])
-     }]' | perl -pe 's/\\u003c!--.*?--\\u003e//g; s/<!--.*?-->//g; s/(\\n){3,}/\\n\\n/g; s/\\n\\n"$/\\n"/'
+bash scripts/fetch-reviews.sh OWNER REPO PR_NUMBER         # unresolved만
+bash scripts/fetch-reviews.sh OWNER REPO PR_NUMBER --all   # resolved 포함 전체
 ```
 
 4. 결과를 테이블로 정리하여 사용자에게 제시:
