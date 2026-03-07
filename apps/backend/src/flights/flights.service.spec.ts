@@ -390,6 +390,9 @@ describe('FlightsService', () => {
       const tokyo = result.cities.find((c) => c.cityNameEn === 'Tokyo');
       expect(tokyo!.lowestPrice).toBe(200000);
       expect(tokyo!.originAirport).toBe('ICN');
+
+      const osaka = result.cities.find((c) => c.cityNameEn === 'Osaka');
+      expect(osaka!.lowestPrice).toBeNull();
     });
 
     it('should cache result with 3-hour TTL', async () => {
