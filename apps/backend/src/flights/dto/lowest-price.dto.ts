@@ -16,8 +16,8 @@ export class CityLowestPriceDto {
   @ApiProperty({ example: 'KRW' })
   currency!: string;
 
-  @ApiPropertyOptional({ example: 'KE' })
-  airline!: string | null;
+  @ApiPropertyOptional({ example: 'Aviasales' })
+  gate!: string | null;
 
   @ApiPropertyOptional({ example: 'ICN' })
   originAirport!: string | null;

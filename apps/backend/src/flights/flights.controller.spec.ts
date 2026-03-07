@@ -126,7 +126,7 @@ describe('FlightsController', () => {
             cityNameEn: 'Tokyo',
             lowestPrice: 150000,
             currency: 'KRW',
-            airline: 'KE',
+            gate: 'Aviasales',
             originAirport: 'ICN',
             departDate: '2026-04-01',
             returnDate: '2026-04-07',

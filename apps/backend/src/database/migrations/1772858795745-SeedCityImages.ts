@@ -24,7 +24,7 @@ export class SeedCityImages1772858795745 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `UPDATE cities SET image_url = NULL, image_author_name = NULL, image_author_url = NULL`,
+      `UPDATE cities SET image_url = NULL, image_author_name = NULL, image_author_url = NULL WHERE name_en IN ('Tokyo', 'Osaka', 'Kyoto', 'Fukuoka', 'Sapporo', 'Naha')`,
     );
   }
 }

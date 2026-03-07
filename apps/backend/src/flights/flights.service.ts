@@ -245,7 +245,7 @@ export class FlightsService {
         cityNameEn: city.nameEn,
         lowestPrice: best?.price.price ?? null,
         currency: 'KRW',
-        airline: best?.price.gate ?? null,
+        gate: best?.price.gate ?? null,
         originAirport: best?.origin ?? null,
         departDate: best?.price.departDate ?? null,
         returnDate: best?.price.returnDate ?? null,
