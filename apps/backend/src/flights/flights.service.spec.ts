@@ -365,6 +365,33 @@ describe('FlightsService', () => {
       expect(result.cities[1]!.lowestPrice).toBeNull();
     });
 
+    it('should still return results when one origin fails', async () => {
+      cacheManager.get.mockResolvedValue(undefined);
+      cityRepo.find.mockResolvedValue(mockCities);
+
+      // ICN succeeds, GMP fails
+      travelpayoutsService.getLatestPrices
+        .mockResolvedValueOnce([
+          {
+            origin: 'ICN',
+            destination: 'TYO',
+            price: 200000,
+            gate: 'Aviasales',
+            departDate: '2026-04-01',
+            returnDate: '2026-04-07',
+            numberOfChanges: 0,
+          },
+        ])
+        .mockRejectedValueOnce(new Error('GMP timeout'));
+
+      const result = await service.lowestPrices();
+
+      expect(result.cities).toHaveLength(2);
+      const tokyo = result.cities.find((c) => c.cityNameEn === 'Tokyo');
+      expect(tokyo!.lowestPrice).toBe(200000);
+      expect(tokyo!.originAirport).toBe('ICN');
+    });
+
     it('should cache result with 3-hour TTL', async () => {
       cacheManager.get.mockResolvedValue(undefined);
       cityRepo.find.mockResolvedValue([]);
