@@ -5,15 +5,22 @@ import { Repository } from 'typeorm';
 import type { Cache } from 'cache-manager';
 import { AmadeusService } from './amadeus.service.js';
 import { DeeplinkService } from './deeplink.service.js';
+import { TravelpayoutsService } from './travelpayouts.service.js';
 import { City } from '../cities/entities/city.entity.js';
 import type { AmadeusFlightOffersResponse } from './interfaces/amadeus.interfaces.js';
+import type { TravelpayoutsPrice } from './interfaces/travelpayouts.interfaces.js';
 import type {
   FlightOfferDto,
   CityFlightsDto,
   CheapestCitiesResponseDto,
 } from './dto/flight-offer.dto.js';
+import type {
+  CityLowestPriceDto,
+  LowestPricesResponseDto,
+} from './dto/lowest-price.dto.js';
 
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
+const LOWEST_PRICES_CACHE_TTL_MS = 3 * 60 * 60 * 1000; // 3 hours
 
 interface SearchParams {
   origin: string;
@@ -40,6 +47,7 @@ export class FlightsService {
   constructor(
     private readonly amadeusService: AmadeusService,
     private readonly deeplinkService: DeeplinkService,
+    private readonly travelpayoutsService: TravelpayoutsService,
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     @InjectRepository(City)
     private readonly cityRepository: Repository<City>,
@@ -175,6 +183,92 @@ export class FlightsService {
       departureDate,
       returnDate,
     };
+  }
+
+  async lowestPrices(): Promise<LowestPricesResponseDto> {
+    const origins = ['ICN', 'GMP'];
+    const cacheKey = `lowest-prices:${origins.sort().join(',')}`;
+
+    const cached =
+      await this.cacheManager.get<LowestPricesResponseDto>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    const [cities, ...priceArrays] = await Promise.all([
+      this.cityRepository.find({ where: { isActive: true } }),
+      ...origins.map((origin) =>
+        this.travelpayoutsService.getLatestPrices(origin),
+      ),
+    ]);
+
+    const allPrices = priceArrays.flat();
+
+    // Build destination → city mapping (iataCityCode + iataCodes for fallback)
+    const destToCities = new Map<string, City[]>();
+    for (const city of cities) {
+      if (city.iataCityCode) {
+        const list = destToCities.get(city.iataCityCode) ?? [];
+        list.push(city);
+        destToCities.set(city.iataCityCode, list);
+      }
+      for (const iata of city.iataCodes) {
+        const list = destToCities.get(iata) ?? [];
+        list.push(city);
+        destToCities.set(iata, list);
+      }
+    }
+
+    // Find lowest price per city
+    const cityBestPrice = new Map<
+      string,
+      { price: TravelpayoutsPrice; origin: string }
+    >();
+
+    for (const price of allPrices) {
+      const matchedCities = destToCities.get(price.destination);
+      if (!matchedCities) continue;
+
+      for (const city of matchedCities) {
+        const current = cityBestPrice.get(city.id);
+        if (!current || price.price < current.price.price) {
+          cityBestPrice.set(city.id, { price, origin: price.origin });
+        }
+      }
+    }
+
+    const cityDtos: CityLowestPriceDto[] = cities.map((city) => {
+      const best = cityBestPrice.get(city.id);
+      return {
+        cityId: city.id,
+        cityNameKo: city.nameKo,
+        cityNameEn: city.nameEn,
+        lowestPrice: best?.price.price ?? null,
+        currency: 'KRW',
+        airline: best?.price.gate ?? null,
+        originAirport: best?.origin ?? null,
+        departDate: best?.price.departDate ?? null,
+        returnDate: best?.price.returnDate ?? null,
+      };
+    });
+
+    // Sort by price (null last)
+    cityDtos.sort((a, b) => {
+      if (a.lowestPrice == null && b.lowestPrice == null) return 0;
+      if (a.lowestPrice == null) return 1;
+      if (b.lowestPrice == null) return -1;
+      return a.lowestPrice - b.lowestPrice;
+    });
+
+    const result: LowestPricesResponseDto = {
+      cities: cityDtos,
+      origins,
+      cachedAt: new Date().toISOString(),
+    };
+
+    await this.cacheManager.set(cacheKey, result, LOWEST_PRICES_CACHE_TTL_MS);
+
+    return result;
   }
 
   private transformOffers(

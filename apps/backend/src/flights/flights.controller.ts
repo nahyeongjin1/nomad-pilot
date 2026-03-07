@@ -7,6 +7,7 @@ import {
   FlightOfferDto,
   CheapestCitiesResponseDto,
 } from './dto/flight-offer.dto.js';
+import { LowestPricesResponseDto } from './dto/lowest-price.dto.js';
 
 @ApiTags('Flights')
 @Controller('flights')
@@ -41,5 +42,14 @@ export class FlightsController {
       adults: dto.adults ?? 1,
       maxPerCity: dto.maxPerCity ?? 3,
     });
+  }
+
+  @Get('lowest-prices')
+  @ApiOperation({
+    summary: 'Get lowest flight prices per city (date-independent)',
+  })
+  @ApiOkResponse({ type: LowestPricesResponseDto })
+  async lowestPrices(): Promise<LowestPricesResponseDto> {
+    return this.flightsService.lowestPrices();
   }
 }

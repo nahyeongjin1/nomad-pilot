@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { FlightsService } from './flights.service.js';
 import { AmadeusService } from './amadeus.service.js';
 import { DeeplinkService } from './deeplink.service.js';
+import { TravelpayoutsService } from './travelpayouts.service.js';
 import { City } from '../cities/entities/city.entity.js';
 import type { AmadeusFlightOffersResponse } from './interfaces/amadeus.interfaces.js';
 
@@ -11,6 +12,7 @@ describe('FlightsService', () => {
   let service: FlightsService;
   let amadeusService: { searchFlightOffers: jest.Mock };
   let deeplinkService: { buildDeeplink: jest.Mock };
+  let travelpayoutsService: { getLatestPrices: jest.Mock };
   let cacheManager: { get: jest.Mock; set: jest.Mock };
   let cityRepo: { find: jest.Mock };
 
@@ -88,6 +90,7 @@ describe('FlightsService', () => {
   beforeEach(async () => {
     amadeusService = { searchFlightOffers: jest.fn() };
     deeplinkService = { buildDeeplink: jest.fn() };
+    travelpayoutsService = { getLatestPrices: jest.fn() };
     cacheManager = { get: jest.fn(), set: jest.fn() };
     cityRepo = { find: jest.fn() };
 
@@ -96,6 +99,7 @@ describe('FlightsService', () => {
         FlightsService,
         { provide: AmadeusService, useValue: amadeusService },
         { provide: DeeplinkService, useValue: deeplinkService },
+        { provide: TravelpayoutsService, useValue: travelpayoutsService },
         { provide: CACHE_MANAGER, useValue: cacheManager },
         { provide: getRepositoryToken(City), useValue: cityRepo },
       ],
@@ -260,6 +264,119 @@ describe('FlightsService', () => {
       });
 
       expect(result.origin).toBe('ICN');
+    });
+  });
+
+  describe('lowestPrices', () => {
+    const mockCities = [
+      {
+        id: '1',
+        nameEn: 'Tokyo',
+        nameKo: '도쿄',
+        iataCityCode: 'TYO',
+        iataCodes: ['NRT', 'HND'],
+        isActive: true,
+      },
+      {
+        id: '2',
+        nameEn: 'Osaka',
+        nameKo: '오사카',
+        iataCityCode: 'OSA',
+        iataCodes: ['KIX'],
+        isActive: true,
+      },
+    ];
+
+    it('should return cached result on cache hit', async () => {
+      const cached = { cities: [], origins: ['ICN', 'GMP'], cachedAt: 'x' };
+      cacheManager.get.mockResolvedValue(cached);
+
+      const result = await service.lowestPrices();
+
+      expect(result).toBe(cached);
+      expect(travelpayoutsService.getLatestPrices).not.toHaveBeenCalled();
+    });
+
+    it('should merge ICN+GMP prices and pick lowest per city', async () => {
+      cacheManager.get.mockResolvedValue(undefined);
+      cityRepo.find.mockResolvedValue(mockCities);
+
+      // ICN → TYO 200000, GMP → TYO 180000 (Travelpayouts returns city codes)
+      travelpayoutsService.getLatestPrices
+        .mockResolvedValueOnce([
+          {
+            origin: 'ICN',
+            destination: 'TYO',
+            price: 200000,
+            gate: 'Aviasales',
+            departDate: '2026-04-01',
+            returnDate: '2026-04-07',
+            numberOfChanges: 0,
+          },
+          {
+            origin: 'ICN',
+            destination: 'OSA',
+            price: 300000,
+            gate: 'Aviasales',
+            departDate: '2026-04-01',
+            returnDate: '2026-04-07',
+            numberOfChanges: 0,
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            origin: 'GMP',
+            destination: 'TYO',
+            price: 180000,
+            gate: 'Aviasales',
+            departDate: '2026-04-02',
+            returnDate: '2026-04-08',
+            numberOfChanges: 0,
+          },
+        ]);
+
+      const result = await service.lowestPrices();
+
+      expect(result.origins).toEqual(['GMP', 'ICN']);
+      expect(result.cities).toHaveLength(2);
+
+      // Tokyo: GMP→NRT 180000 (cheaper than ICN→NRT 200000)
+      const tokyo = result.cities.find((c) => c.cityNameEn === 'Tokyo');
+      expect(tokyo!.lowestPrice).toBe(180000);
+      expect(tokyo!.originAirport).toBe('GMP');
+
+      // Osaka: ICN→KIX 300000 (only option)
+      const osaka = result.cities.find((c) => c.cityNameEn === 'Osaka');
+      expect(osaka!.lowestPrice).toBe(300000);
+
+      // Sorted by price: Tokyo first
+      expect(result.cities[0]!.cityNameEn).toBe('Tokyo');
+    });
+
+    it('should return null prices when Travelpayouts returns empty', async () => {
+      cacheManager.get.mockResolvedValue(undefined);
+      cityRepo.find.mockResolvedValue(mockCities);
+      travelpayoutsService.getLatestPrices.mockResolvedValue([]);
+
+      const result = await service.lowestPrices();
+
+      expect(result.cities).toHaveLength(2);
+      expect(result.cities[0]!.lowestPrice).toBeNull();
+      expect(result.cities[1]!.lowestPrice).toBeNull();
+    });
+
+    it('should cache result with 3-hour TTL', async () => {
+      cacheManager.get.mockResolvedValue(undefined);
+      cityRepo.find.mockResolvedValue([]);
+      travelpayoutsService.getLatestPrices.mockResolvedValue([]);
+
+      await service.lowestPrices();
+
+      expect(cacheManager.set).toHaveBeenCalledWith(
+        'lowest-prices:GMP,ICN',
+        expect.objectContaining({ origins: ['GMP', 'ICN'] }),
+        3 * 60 * 60 * 1000,
+      );
     });
   });
 });
