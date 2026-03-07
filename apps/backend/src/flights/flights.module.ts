@@ -7,6 +7,7 @@ import { FlightsController } from './flights.controller.js';
 import { FlightsService } from './flights.service.js';
 import { AmadeusService } from './amadeus.service.js';
 import { DeeplinkService } from './deeplink.service.js';
+import { TravelpayoutsService } from './travelpayouts.service.js';
 
 @Module({
   imports: [
@@ -15,6 +16,11 @@ import { DeeplinkService } from './deeplink.service.js';
     TypeOrmModule.forFeature([City]),
   ],
   controllers: [FlightsController],
-  providers: [FlightsService, AmadeusService, DeeplinkService],
+  providers: [
+    FlightsService,
+    AmadeusService,
+    DeeplinkService,
+    TravelpayoutsService,
+  ],
 })
 export class FlightsModule {}

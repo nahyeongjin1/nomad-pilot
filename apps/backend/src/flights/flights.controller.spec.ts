@@ -5,10 +5,15 @@ import type {
   FlightOfferDto,
   CheapestCitiesResponseDto,
 } from './dto/flight-offer.dto.js';
+import type { LowestPricesResponseDto } from './dto/lowest-price.dto.js';
 
 describe('FlightsController', () => {
   let controller: FlightsController;
-  let flightsService: { searchFlights: jest.Mock; cheapestCities: jest.Mock };
+  let flightsService: {
+    searchFlights: jest.Mock;
+    cheapestCities: jest.Mock;
+    lowestPrices: jest.Mock;
+  };
 
   const mockOffers: FlightOfferDto[] = [
     {
@@ -55,6 +60,7 @@ describe('FlightsController', () => {
     flightsService = {
       searchFlights: jest.fn(),
       cheapestCities: jest.fn(),
+      lowestPrices: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -107,6 +113,34 @@ describe('FlightsController', () => {
         adults: 1,
         maxPerCity: 3,
       });
+    });
+  });
+
+  describe('lowestPrices', () => {
+    it('should call flightsService.lowestPrices and return result', async () => {
+      const mockResponse: LowestPricesResponseDto = {
+        cities: [
+          {
+            cityId: '1',
+            cityNameKo: '도쿄',
+            cityNameEn: 'Tokyo',
+            lowestPrice: 150000,
+            currency: 'KRW',
+            gate: 'Aviasales',
+            originAirport: 'ICN',
+            departDate: '2026-04-01',
+            returnDate: '2026-04-07',
+          },
+        ],
+        origins: ['ICN', 'GMP'],
+        cachedAt: '2026-03-07T12:00:00.000Z',
+      };
+      flightsService.lowestPrices.mockResolvedValue(mockResponse);
+
+      const result = await controller.lowestPrices();
+
+      expect(result).toBe(mockResponse);
+      expect(flightsService.lowestPrices).toHaveBeenCalled();
     });
   });
 });

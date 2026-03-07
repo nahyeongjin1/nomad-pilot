@@ -66,3 +66,9 @@
 | 2026-03-05 | PWA: generateSW + autoUpdate                     | generateSW 제로 설정. T14 Web Push 시 injectManifest 전환. autoUpdate로 사용자 개입 없이 SW 갱신                                                         |
 | 2026-03-05 | 런타임 캐싱: Pretendard JP 폰트만                | jsDelivr CDN CacheFirst 1년. API/이미지 캐싱은 각 화면 구현 시 결정. 앱 설치는 브라우저 기본 UI만                                                        |
 | 2026-03-05 | Vercel SW 캐시: 배포 후 확인 원칙                | sw.js에 장기 Cache-Control 설정 시 vercel.json 헤더 오버라이드. 배포 후 Network 탭 확인                                                                  |
+| 2026-03-07 | 최저가 소스: Travelpayouts 단독                  | Travelpayouts Data API v3 `/aviasales/v3/get_latest_prices` (v2 deprecated). Amadeus Flight Inspiration Search는 Test 환경 500 에러로 fallback 제외      |
+| 2026-03-07 | 최저가 캐싱: 인메모리 3시간                      | Travelpayouts 원본 48시간 캐시 대비 3시간 TTL. ICN+GMP 2회 호출, 캐싱 후 3시간간 추가 호출 없음                                                          |
+| 2026-03-07 | 복수 출발지: ICN + GMP                           | 두 공항 조회 후 도시별 최저가 선택. Promise.all 병렬 호출                                                                                                |
+| 2026-03-07 | 도시 이미지: Unsplash 로컬 조회 → 마이그레이션   | 스크립트로 1회 조회, URL+attribution 하드코딩. 런타임 API 호출 없음. attribution 구조화 저장(authorName+authorUrl)                                       |
+| 2026-03-07 | iataCityCode 컬럼 분리                           | 공항코드(iataCodes)와 도시코드(iataCityCode) 분리. 외부 API는 도시코드 반환. Airport 엔티티 분리는 국내선 지원 시 검토                                   |
+| 2026-03-07 | Travelpayouts 커버리지 한계                      | 한국발 일본행 데이터 부족(FUK만). 러시아 기반 구조적 한계. 최저가 소스 추가 검토 필요(Kiwi Tequila 등). 서비스 교체 가능한 설계                          |

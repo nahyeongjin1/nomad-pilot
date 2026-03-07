@@ -30,11 +30,23 @@ export class City extends BaseEntity {
   @Column({ type: 'varchar', length: 50 })
   timezone!: string;
 
+  @Column({ type: 'char', length: 3, nullable: true })
+  iataCityCode!: string | null;
+
   @Column({ type: 'text', array: true })
   iataCodes!: string[];
 
   @Column({ type: 'char', length: 3 })
   currencyCode!: string;
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  imageUrl!: string | null;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  imageAuthorName!: string | null;
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  imageAuthorUrl!: string | null;
 
   @Column({ type: 'boolean', default: true })
   isActive!: boolean;
