@@ -337,7 +337,7 @@ describe('FlightsService', () => {
 
       const result = await service.lowestPrices();
 
-      expect(result.origins).toEqual(['GMP', 'ICN']);
+      expect(result.origins).toEqual(['ICN', 'GMP']);
       expect(result.cities).toHaveLength(2);
 
       // Tokyo: GMP→NRT 180000 (cheaper than ICN→NRT 200000)
@@ -374,7 +374,7 @@ describe('FlightsService', () => {
 
       expect(cacheManager.set).toHaveBeenCalledWith(
         'lowest-prices:GMP,ICN',
-        expect.objectContaining({ origins: ['GMP', 'ICN'] }),
+        expect.objectContaining({ origins: ['ICN', 'GMP'] }),
         3 * 60 * 60 * 1000,
       );
     });

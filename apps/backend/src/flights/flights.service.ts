@@ -187,7 +187,7 @@ export class FlightsService {
 
   async lowestPrices(): Promise<LowestPricesResponseDto> {
     const origins = ['ICN', 'GMP'];
-    const cacheKey = `lowest-prices:${origins.sort().join(',')}`;
+    const cacheKey = `lowest-prices:${[...origins].sort().join(',')}`;
 
     const cached =
       await this.cacheManager.get<LowestPricesResponseDto>(cacheKey);
@@ -198,7 +198,15 @@ export class FlightsService {
     const [cities, ...priceArrays] = await Promise.all([
       this.cityRepository.find({ where: { isActive: true } }),
       ...origins.map((origin) =>
-        this.travelpayoutsService.getLatestPrices(origin),
+        this.travelpayoutsService
+          .getLatestPrices(origin)
+          .catch((err: unknown) => {
+            const message = err instanceof Error ? err.message : String(err);
+            this.logger.warn(
+              `Failed to fetch prices for origin ${origin}: ${message}`,
+            );
+            return [] as TravelpayoutsPrice[];
+          }),
       ),
     ]);
 

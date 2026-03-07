@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CityLowestPriceDto {
   @ApiProperty({ example: 'uuid' })
@@ -10,22 +10,22 @@ export class CityLowestPriceDto {
   @ApiProperty({ example: 'Tokyo' })
   cityNameEn!: string;
 
-  @ApiPropertyOptional({ example: 150000 })
+  @ApiProperty({ example: 150000, nullable: true })
   lowestPrice!: number | null;
 
   @ApiProperty({ example: 'KRW' })
   currency!: string;
 
-  @ApiPropertyOptional({ example: 'Aviasales' })
+  @ApiProperty({ example: 'Aviasales', nullable: true })
   gate!: string | null;
 
-  @ApiPropertyOptional({ example: 'ICN' })
+  @ApiProperty({ example: 'ICN', nullable: true })
   originAirport!: string | null;
 
-  @ApiPropertyOptional({ example: '2026-04-01' })
+  @ApiProperty({ example: '2026-04-01', nullable: true })
   departDate!: string | null;
 
-  @ApiPropertyOptional({ example: '2026-04-07' })
+  @ApiProperty({ example: '2026-04-07', nullable: true })
   returnDate!: string | null;
 }
 
