@@ -32,3 +32,4 @@ mutation {
 
 7. **수정 반영**: 수정할 항목들을 코드 변경 후 커밋 & 푸시. 수정 항목에는 푸시 전 댓글을 달지 않음 — CodeRabbit이 새 커밋을 re-review하며 대부분 자동 resolve
 8. **잔여 확인**: re-review 후에도 unresolved로 남은 수정 항목이 있으면 `Addressed in commit {commit_sha}` 댓글을 달아 CodeRabbit이 해당 커밋을 확인하도록 유도
+9. **머지**: PR approved 후 사용자가 머지를 요청하면 `gh pr merge <number> --squash --delete-branch` 실행 (remote + local 브랜치 동시 삭제)
