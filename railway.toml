@@ -1,7 +1,7 @@
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "apps/backend/Dockerfile"
-watchPatterns = ["apps/backend/**", "packages/shared/**", "pnpm-lock.yaml", "package.json", "pnpm-workspace.yaml", ".npmrc"]
+watchPatterns = ["apps/backend/**", "packages/shared/**", "pnpm-lock.yaml", "package.json", "pnpm-workspace.yaml", ".npmrc", "railway.toml"]
 
 [deploy]
 preDeployCommand = "cd apps/backend && node ./node_modules/typeorm/cli.js migration:run -d dist/database/data-source.js"
