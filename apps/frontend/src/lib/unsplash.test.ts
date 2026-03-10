@@ -20,4 +20,13 @@ describe('buildAttributionUrl', () => {
       'https://unsplash.com/@photographer?utm_source=nomad_pilot&utm_medium=referral',
     );
   });
+
+  it('preserves existing query params', () => {
+    const url = buildAttributionUrl(
+      'https://unsplash.com/@photographer?ref=abc',
+    );
+    expect(url).toContain('ref=abc');
+    expect(url).toContain('utm_source=nomad_pilot');
+    expect(url).toContain('utm_medium=referral');
+  });
 });

@@ -46,14 +46,26 @@ export function CityCard({ city, price, priceLoading, index }: CityCardProps) {
 
         {/* Unsplash attribution */}
         {city.imageAuthorName && city.imageAuthorUrl && (
-          <a
-            href={buildAttributionUrl(city.imageAuthorUrl)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="absolute bottom-3 right-3 text-xs text-white/60 hover:text-white/80"
-          >
-            Photo by {city.imageAuthorName}
-          </a>
+          <span className="absolute bottom-3 right-3 text-xs text-white/60">
+            Photo by{' '}
+            <a
+              href={buildAttributionUrl(city.imageAuthorUrl)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-white/80"
+            >
+              {city.imageAuthorName}
+            </a>{' '}
+            on{' '}
+            <a
+              href="https://unsplash.com?utm_source=nomad_pilot&utm_medium=referral"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-white/80"
+            >
+              Unsplash
+            </a>
+          </span>
         )}
       </div>
 

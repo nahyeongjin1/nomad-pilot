@@ -83,7 +83,17 @@ function ExplorePage() {
     );
   }
 
-  if (!cities?.length) return null;
+  if (!cities?.length) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4">
+        <p className="text-muted-foreground">표시할 도시가 없습니다</p>
+        <Button variant="outline" onClick={() => void refetchCities()}>
+          <RefreshCw className="size-4" />
+          다시 시도
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col">
@@ -114,9 +124,11 @@ function ExplorePage() {
         <div className="mt-4 flex gap-2">
           {cities.map((city, i) => (
             <button
+              type="button"
               key={city.id}
               onClick={() => api?.scrollTo(i)}
               aria-label={`${city.nameKo}로 이동`}
+              aria-pressed={i === currentIndex}
               className={cn(
                 'size-2 rounded-full transition-all',
                 i === currentIndex

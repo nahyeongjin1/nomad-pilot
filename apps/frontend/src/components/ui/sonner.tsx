@@ -10,6 +10,7 @@ import { Toaster as Sonner, type ToasterProps } from 'sonner';
 const Toaster = ({ ...props }: ToasterProps) => {
   return (
     <Sonner
+      {...props}
       theme="light"
       className="toaster group"
       icons={{
@@ -27,7 +28,6 @@ const Toaster = ({ ...props }: ToasterProps) => {
           '--border-radius': 'var(--radius)',
         } as React.CSSProperties
       }
-      {...props}
     />
   );
 };
