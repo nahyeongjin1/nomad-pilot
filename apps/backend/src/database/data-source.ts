@@ -1,3 +1,4 @@
+import * as path from 'path';
 import { DataSource, DataSourceOptions } from 'typeorm';
 import 'dotenv/config';
 import { SnakeNamingStrategy } from '../common/naming/snake-naming.strategy.js';
@@ -15,8 +16,8 @@ export const dataSourceOptions: DataSourceOptions = {
         password: process.env.DB_PASSWORD || 'postgres',
         database: process.env.DB_DATABASE || 'nomad_pilot',
       }),
-  entities: ['dist/**/*.entity.js'],
-  migrations: ['dist/database/migrations/*.js'],
+  entities: [path.join(__dirname, '..', '**', '*.entity.js')],
+  migrations: [path.join(__dirname, 'migrations', '*.js')],
   synchronize: false,
   namingStrategy: new SnakeNamingStrategy(),
   logging: process.env.NODE_ENV === 'development',
