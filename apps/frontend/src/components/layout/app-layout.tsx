@@ -7,7 +7,7 @@ export function AppLayout() {
   return (
     <div className="flex min-h-screen flex-col">
       <AppHeader />
-      <main className="flex-1 pb-[calc(4rem+env(safe-area-inset-bottom))]">
+      <main className="flex flex-1 flex-col pb-[calc(4rem+env(safe-area-inset-bottom))]">
         <Outlet />
       </main>
       <BottomNav />

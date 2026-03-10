@@ -72,3 +72,13 @@
 | 2026-03-07 | 도시 이미지: Unsplash 로컬 조회 → 마이그레이션   | 스크립트로 1회 조회, URL+attribution 하드코딩. 런타임 API 호출 없음. attribution 구조화 저장(authorName+authorUrl)                                       |
 | 2026-03-07 | iataCityCode 컬럼 분리                           | 공항코드(iataCodes)와 도시코드(iataCityCode) 분리. 외부 API는 도시코드 반환. Airport 엔티티 분리는 국내선 지원 시 검토                                   |
 | 2026-03-07 | Travelpayouts 커버리지 한계                      | 한국발 일본행 데이터 부족(FUK만). 러시아 기반 구조적 한계. 최저가 소스 추가 검토 필요(Kiwi Tequila 등). 서비스 교체 가능한 설계                          |
+| 2026-03-08 | 스와이프 카드: embla-carousel (shadcn Carousel)  | shadcn/ui 내부 의존성으로 추가 번들 없음(~15KB). 양방향 스와이프 + 닷 인디케이터. 브라우저 edge swipe 충돌 방지 내장                                     |
+| 2026-03-08 | 데이터 페칭: useQuery 2개 독립                   | cities 먼저 렌더 + 가격은 스켈레톤으로 점진 로딩. Promise.all 대비 UX 우수(하나가 느려도 나머지 먼저 표시). cities staleTime: Infinity, prices: 30분     |
+| 2026-03-08 | 이미지 URL: 프론트 트랜스폼                      | DB URL 그대로 유지, 프론트 유틸에서 w=640 + auto=format 변환. DB 수정 불필요. 화면별 최적 사이즈 유연 적용                                               |
+| 2026-03-08 | 비활성 버튼: 토스트 피드백                       | 항공편 검색/POI 탐색/여행 계획 버튼 배치 + shadcn Sonner 토스트 "준비 중이에요". T23(항공편 검색) 구현 시 해당 버튼 활성화                               |
+| 2026-03-08 | 도시 정렬: nameKo ASC (가나다순)                 | sortOrder 컬럼 불필요 — 등차수열 유지 안 되면 문제 발생. 가나다순이 사용자 예상과 일치. 백엔드 현행 유지                                                 |
+| 2026-03-08 | 카드 높이: min(3:4 비율, 가용 높이)              | 세로 스크롤 없는 방향. aspect-ratio 3:4 기본 + 가용 높이 제한. CLS 방지를 위한 고정 컨테이너                                                             |
+| 2026-03-10 | 카드 레이아웃: 이미지/정보 분리                  | 이미지 카드(3:4 + max-h) 위에는 attribution만, 아래에 도시명+가격+버튼 배치. 그라디언트 오버레이 제거. 키 큰 기기에서 하단 공백 해소                     |
+| 2026-03-10 | CORS: 프로젝트 한정 RegExp                       | `/\.vercel\.app$/` 범용 패턴은 타 프로젝트 요청도 허용. `nomad-pilot-frontend` 프로젝트명 포함 RegExp로 범위 제한                                        |
+| 2026-03-10 | Sonner: next-themes 제거, light 고정             | Vite+React 환경에서 next-themes 불필요. 다크모드 MVP 제외이므로 `theme="light"` 하드코딩. top-center + closeButton                                       |
+| 2026-03-10 | main 레이아웃: flex 컨테이너화                   | `<main>`에 `flex flex-col` 추가. 자식 라우트가 `flex-1`로 가용 높이를 채울 수 있도록 허용                                                                |
