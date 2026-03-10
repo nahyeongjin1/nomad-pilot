@@ -11,7 +11,10 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    origin: [
+      process.env.CORS_ORIGIN || 'http://localhost:5173',
+      /^https:\/\/nomad-pilot-frontend(?:-[a-z0-9-]+)*\.vercel\.app$/,
+    ],
   });
 
   app.useGlobalPipes(

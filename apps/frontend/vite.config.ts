@@ -31,6 +31,43 @@ export default defineConfig({
               },
             },
           },
+          {
+            urlPattern: /\/api\/v1\/cities$/,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'cities-api-cache',
+              expiration: {
+                maxEntries: 5,
+                maxAgeSeconds: 60 * 60 * 24,
+              },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/images\.unsplash\.com\//,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'unsplash-images-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: /\/api\/v1\/flights\/lowest-prices$/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'lowest-prices-cache',
+              networkTimeoutSeconds: 5,
+              expiration: {
+                maxEntries: 5,
+                maxAgeSeconds: 60 * 60 * 6,
+              },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
         ],
       },
       manifest: {
