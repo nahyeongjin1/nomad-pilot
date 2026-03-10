@@ -1,6 +1,10 @@
 /** Transform Unsplash image URL for optimized delivery (w=640, auto=format) */
-export function optimizeImageUrl(url: string): string {
-  return url.replace(/w=\d+/, 'w=640').replace(/fm=\w+/, 'auto=format');
+export function optimizeImageUrl(rawUrl: string): string {
+  const url = new URL(rawUrl);
+  url.searchParams.set('w', '640');
+  url.searchParams.delete('fm');
+  url.searchParams.set('auto', 'format');
+  return url.toString();
 }
 
 /** Build Unsplash attribution link with UTM parameters */

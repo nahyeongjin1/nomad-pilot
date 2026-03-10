@@ -8,121 +8,121 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root';
-import { Route as AppRouteImport } from './routes/_app';
-import { Route as AppIndexRouteImport } from './routes/_app/index';
-import { Route as AppTripsRouteImport } from './routes/_app/trips';
-import { Route as AppPlanningRouteImport } from './routes/_app/planning';
-import { Route as AppMyRouteImport } from './routes/_app/my';
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppTripsRouteImport } from './routes/_app/trips'
+import { Route as AppPlanningRouteImport } from './routes/_app/planning'
+import { Route as AppMyRouteImport } from './routes/_app/my'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRoute,
-} as any);
+} as any)
 const AppTripsRoute = AppTripsRouteImport.update({
   id: '/trips',
   path: '/trips',
   getParentRoute: () => AppRoute,
-} as any);
+} as any)
 const AppPlanningRoute = AppPlanningRouteImport.update({
   id: '/planning',
   path: '/planning',
   getParentRoute: () => AppRoute,
-} as any);
+} as any)
 const AppMyRoute = AppMyRouteImport.update({
   id: '/my',
   path: '/my',
   getParentRoute: () => AppRoute,
-} as any);
+} as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AppIndexRoute;
-  '/my': typeof AppMyRoute;
-  '/planning': typeof AppPlanningRoute;
-  '/trips': typeof AppTripsRoute;
+  '/': typeof AppIndexRoute
+  '/my': typeof AppMyRoute
+  '/planning': typeof AppPlanningRoute
+  '/trips': typeof AppTripsRoute
 }
 export interface FileRoutesByTo {
-  '/my': typeof AppMyRoute;
-  '/planning': typeof AppPlanningRoute;
-  '/trips': typeof AppTripsRoute;
-  '/': typeof AppIndexRoute;
+  '/my': typeof AppMyRoute
+  '/planning': typeof AppPlanningRoute
+  '/trips': typeof AppTripsRoute
+  '/': typeof AppIndexRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  '/_app': typeof AppRouteWithChildren;
-  '/_app/my': typeof AppMyRoute;
-  '/_app/planning': typeof AppPlanningRoute;
-  '/_app/trips': typeof AppTripsRoute;
-  '/_app/': typeof AppIndexRoute;
+  __root__: typeof rootRouteImport
+  '/_app': typeof AppRouteWithChildren
+  '/_app/my': typeof AppMyRoute
+  '/_app/planning': typeof AppPlanningRoute
+  '/_app/trips': typeof AppTripsRoute
+  '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: '/' | '/my' | '/planning' | '/trips';
-  fileRoutesByTo: FileRoutesByTo;
-  to: '/my' | '/planning' | '/trips' | '/';
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths: '/' | '/my' | '/planning' | '/trips'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/my' | '/planning' | '/trips' | '/'
   id:
     | '__root__'
     | '/_app'
     | '/_app/my'
     | '/_app/planning'
     | '/_app/trips'
-    | '/_app/';
-  fileRoutesById: FileRoutesById;
+    | '/_app/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AppRoute: typeof AppRouteWithChildren;
+  AppRoute: typeof AppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/_app': {
-      id: '/_app';
-      path: '';
-      fullPath: '/';
-      preLoaderRoute: typeof AppRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app/': {
-      id: '/_app/';
-      path: '/';
-      fullPath: '/';
-      preLoaderRoute: typeof AppIndexRouteImport;
-      parentRoute: typeof AppRoute;
-    };
+      id: '/_app/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/trips': {
-      id: '/_app/trips';
-      path: '/trips';
-      fullPath: '/trips';
-      preLoaderRoute: typeof AppTripsRouteImport;
-      parentRoute: typeof AppRoute;
-    };
+      id: '/_app/trips'
+      path: '/trips'
+      fullPath: '/trips'
+      preLoaderRoute: typeof AppTripsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/planning': {
-      id: '/_app/planning';
-      path: '/planning';
-      fullPath: '/planning';
-      preLoaderRoute: typeof AppPlanningRouteImport;
-      parentRoute: typeof AppRoute;
-    };
+      id: '/_app/planning'
+      path: '/planning'
+      fullPath: '/planning'
+      preLoaderRoute: typeof AppPlanningRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/my': {
-      id: '/_app/my';
-      path: '/my';
-      fullPath: '/my';
-      preLoaderRoute: typeof AppMyRouteImport;
-      parentRoute: typeof AppRoute;
-    };
+      id: '/_app/my'
+      path: '/my'
+      fullPath: '/my'
+      preLoaderRoute: typeof AppMyRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
-  AppMyRoute: typeof AppMyRoute;
-  AppPlanningRoute: typeof AppPlanningRoute;
-  AppTripsRoute: typeof AppTripsRoute;
-  AppIndexRoute: typeof AppIndexRoute;
+  AppMyRoute: typeof AppMyRoute
+  AppPlanningRoute: typeof AppPlanningRoute
+  AppTripsRoute: typeof AppTripsRoute
+  AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -130,13 +130,13 @@ const AppRouteChildren: AppRouteChildren = {
   AppPlanningRoute: AppPlanningRoute,
   AppTripsRoute: AppTripsRoute,
   AppIndexRoute: AppIndexRoute,
-};
+}
 
-const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren);
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
