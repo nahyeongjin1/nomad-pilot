@@ -9,10 +9,10 @@ function toDateStr(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-/** Get next occurrence of a weekday (0=Sun..6=Sat) from a given date */
+/** Get next occurrence of a weekday (0=Sun..6=Sat) on or after a given date */
 function nextWeekday(from: Date, weekday: number): Date {
   const d = new Date(from);
-  const diff = (weekday - d.getDay() + 7) % 7 || 7;
+  const diff = (weekday - d.getDay() + 7) % 7;
   d.setDate(d.getDate() + diff);
   return d;
 }

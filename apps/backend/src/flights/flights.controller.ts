@@ -56,7 +56,15 @@ export class FlightsController {
     if (dto.nightsFrom > dto.nightsTo) {
       throw new BadRequestException('nightsFrom must be <= nightsTo');
     }
-    const origins = (dto.origins ?? 'ICN,GMP').split(',').map((s) => s.trim());
+    const origins = (dto.origins ?? 'ICN,GMP')
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (origins.length === 0) {
+      throw new BadRequestException(
+        'origins must include at least one IATA code',
+      );
+    }
     return this.flightsService.flexibleSearch({
       origins,
       destinationCityId: dto.destination,
