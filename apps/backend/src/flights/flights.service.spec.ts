@@ -14,7 +14,7 @@ describe('FlightsService', () => {
   let deeplinkService: { buildDeeplink: jest.Mock };
   let travelpayoutsService: { getLatestPrices: jest.Mock };
   let cacheManager: { get: jest.Mock; set: jest.Mock };
-  let cityRepo: { find: jest.Mock };
+  let cityRepo: { find: jest.Mock; findOne: jest.Mock };
 
   const mockAmadeusResponse: AmadeusFlightOffersResponse = {
     meta: { count: 1 },
@@ -92,7 +92,7 @@ describe('FlightsService', () => {
     deeplinkService = { buildDeeplink: jest.fn() };
     travelpayoutsService = { getLatestPrices: jest.fn() };
     cacheManager = { get: jest.fn(), set: jest.fn() };
-    cityRepo = { find: jest.fn() };
+    cityRepo = { find: jest.fn(), findOne: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -264,6 +264,142 @@ describe('FlightsService', () => {
       });
 
       expect(result.origin).toBe('ICN');
+    });
+  });
+
+  describe('flexibleSearch', () => {
+    const mockCity = {
+      id: 'city-1',
+      nameEn: 'Osaka',
+      nameKo: '오사카',
+      iataCodes: ['KIX'],
+      countryCode: 'JP',
+      isActive: true,
+    };
+
+    it('should return empty array when city not found', async () => {
+      cityRepo.findOne.mockResolvedValue(null);
+
+      const result = await service.flexibleSearch({
+        origins: ['ICN'],
+        destinationCityId: 'unknown',
+        dateFrom: '2026-03-13',
+        dateTo: '2026-03-14',
+        nightsFrom: 2,
+        nightsTo: 2,
+        adults: 1,
+        maxResults: 20,
+      });
+
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array when no date combinations exist', async () => {
+      cityRepo.findOne.mockResolvedValue(mockCity);
+
+      // Mon-Thu → no Friday/Saturday
+      const result = await service.flexibleSearch({
+        origins: ['ICN'],
+        destinationCityId: 'city-1',
+        dateFrom: '2026-03-16',
+        dateTo: '2026-03-19',
+        nightsFrom: 2,
+        nightsTo: 2,
+        adults: 1,
+        maxResults: 20,
+      });
+
+      expect(result).toEqual([]);
+    });
+
+    it('should search all origin × destination × date combinations', async () => {
+      cityRepo.findOne.mockResolvedValue(mockCity);
+      cacheManager.get.mockResolvedValue(undefined);
+      amadeusService.searchFlightOffers.mockResolvedValue(mockAmadeusResponse);
+      deeplinkService.buildDeeplink.mockReturnValue('https://example.com/dl');
+
+      // Fri 3/13 only, 2 nights, 2 origins × 1 dest × 1 date = 2 unique calls
+      await service.flexibleSearch({
+        origins: ['ICN', 'GMP'],
+        destinationCityId: 'city-1',
+        dateFrom: '2026-03-13',
+        dateTo: '2026-03-13',
+        nightsFrom: 2,
+        nightsTo: 2,
+        adults: 1,
+        maxResults: 20,
+      });
+
+      expect(amadeusService.searchFlightOffers).toHaveBeenCalledTimes(2);
+    });
+
+    it('should sort results by price and limit to maxResults', async () => {
+      cityRepo.findOne.mockResolvedValue(mockCity);
+      cacheManager.get.mockResolvedValue(undefined);
+      deeplinkService.buildDeeplink
+        .mockReturnValueOnce('https://example.com/cheap')
+        .mockReturnValueOnce('https://example.com/expensive');
+
+      const cheapResponse: AmadeusFlightOffersResponse = {
+        ...mockAmadeusResponse,
+        data: [
+          {
+            ...mockAmadeusResponse.data[0]!,
+            price: { ...mockAmadeusResponse.data[0]!.price, total: '100000' },
+          },
+        ],
+      };
+      const expensiveResponse: AmadeusFlightOffersResponse = {
+        ...mockAmadeusResponse,
+        data: [
+          {
+            ...mockAmadeusResponse.data[0]!,
+            price: { ...mockAmadeusResponse.data[0]!.price, total: '500000' },
+          },
+        ],
+      };
+
+      amadeusService.searchFlightOffers
+        .mockResolvedValueOnce(expensiveResponse)
+        .mockResolvedValueOnce(cheapResponse);
+
+      const result = await service.flexibleSearch({
+        origins: ['ICN', 'GMP'],
+        destinationCityId: 'city-1',
+        dateFrom: '2026-03-13',
+        dateTo: '2026-03-13',
+        nightsFrom: 2,
+        nightsTo: 2,
+        adults: 1,
+        maxResults: 1,
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0]!.totalPrice).toBe(100000);
+    });
+
+    it('should include originAirport and nightsInDest in results', async () => {
+      cityRepo.findOne.mockResolvedValue(mockCity);
+      cacheManager.get.mockResolvedValue(undefined);
+      amadeusService.searchFlightOffers.mockResolvedValue(mockAmadeusResponse);
+      deeplinkService.buildDeeplink.mockReturnValue('https://example.com/dl');
+
+      const result = await service.flexibleSearch({
+        origins: ['ICN'],
+        destinationCityId: 'city-1',
+        dateFrom: '2026-03-13',
+        dateTo: '2026-03-13',
+        nightsFrom: 2,
+        nightsTo: 2,
+        adults: 1,
+        maxResults: 20,
+      });
+
+      expect(result[0]).toMatchObject({
+        originAirport: 'ICN',
+        destinationAirport: 'KIX',
+        nightsInDest: 2,
+      });
     });
   });
 

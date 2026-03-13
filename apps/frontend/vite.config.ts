@@ -68,6 +68,19 @@ export default defineConfig({
               cacheableResponse: { statuses: [0, 200] },
             },
           },
+          {
+            urlPattern: /\/api\/v1\/flights\/flexible-search/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'flight-search-cache',
+              networkTimeoutSeconds: 15,
+              expiration: {
+                maxEntries: 20,
+                maxAgeSeconds: 60 * 30,
+              },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
         ],
       },
       manifest: {

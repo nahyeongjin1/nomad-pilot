@@ -27,3 +27,47 @@ export interface LowestPricesResponseDto {
   origins: string[];
   cachedAt: string;
 }
+
+// Flight search types
+
+export interface SegmentDto {
+  departureAirport: string;
+  departureAt: string;
+  departureTerminal?: string;
+  arrivalAirport: string;
+  arrivalAt: string;
+  arrivalTerminal?: string;
+  carrierCode: string;
+  carrierName?: string;
+  flightNumber: string;
+  duration: string;
+  numberOfStops: number;
+}
+
+export interface ItineraryDto {
+  duration: string;
+  segments: SegmentDto[];
+}
+
+export interface FlightOfferDto {
+  currency: string;
+  totalPrice: number;
+  originAirport: string;
+  destinationAirport: string;
+  nightsInDest: number | null;
+  itineraries: ItineraryDto[];
+  airlines: string[];
+  deeplink: string;
+  cachedAt?: string;
+}
+
+export interface FlexibleSearchParams {
+  origins?: string;
+  destination: string;
+  dateFrom: string;
+  dateTo: string;
+  nightsFrom: number;
+  nightsTo: number;
+  adults?: number;
+  maxResults?: number;
+}

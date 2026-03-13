@@ -2,83 +2,88 @@
 
 > Architecture Decision Records. 프로젝트 전체에 걸친 설계 결정을 기록한다.
 
-| 날짜       | 결정                                             | 근거                                                                                                                                                     |
-| ---------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-02-12 | 서빙 형식: PWA                                   | 진입장벽 최소화, 오프라인 지원, 해외 즉시 접근                                                                                                           |
-| 2026-02-12 | 문서 관리: .claude/ 내부                         | 코드와 문서 분리, docs/ + plans/ 구조, CLAUDE.md 허브 방식                                                                                               |
-| 2026-02-12 | 방향: 최저가 여행 파일럿                         | 가치 제안 명확화, 타겟 확장, 수익화 경로 다양화                                                                                                          |
-| 2026-02-12 | MVP 1인 여행 고정                                | 그룹 복잡도 회피, DB 확장 가능 설계, 그룹은 Phase 3 유료                                                                                                 |
-| 2026-02-12 | WebSocket 전면 제거                              | REST + Web Push + Client Geofencing 대체. 해외 데이터 절약                                                                                               |
-| 2026-02-12 | 동행자 위치: 1회 조회 방식                       | 실시간 불필요, REST 조회로 충분                                                                                                                          |
-| 2026-02-12 | 인프라: Vercel + Railway                         | Frontend $0 + Backend/DB $5/월. NestJS 학습 목적 유지                                                                                                    |
-| 2026-02-12 | MVP DB 단일화: PostgreSQL만                      | ES/Redis 스케일링 시 도입. tsvector+GIN 텍스트 검색, PostGIS 공간 검색                                                                                   |
-| 2026-02-12 | MVP 일본 한정                                    | 한국인 해외여행 1위, OSM 품질 우수, 스코프 축소. .claude/docs/feasibility-study.md                                                                       |
-| 2026-02-12 | 항공: Amadeus + Kiwi (딥링크→Travelpayouts 대체) | Amadeus(검색) 유지. Kiwi 딥링크는 2026-03-01 ADR로 Travelpayouts 대체                                                                                    |
-| 2026-02-12 | POI: OSM + Google Places                         | OSM(기본, 무료) + Google(on-demand). .claude/docs/feasibility-study.md §3                                                                                |
-| 2026-02-12 | 개발 방식: TDD                                   | 테스트 먼저 작성 → 구현 → 리팩터. 모든 서비스/로직에 테스트 필수                                                                                         |
-| 2026-02-12 | Git: GitHub Flow                                 | main + feat/fix 브랜치. 태스크 단위 브랜치 → main 머지. develop 불필요 (1인 MVP)                                                                         |
-| 2026-02-12 | 로깅: Pino (nestjs-pino)                         | JSON 네이티브, 요청별 자동 로깅. dev: pino-pretty, prod: JSON. Railway stdout 수집                                                                       |
-| 2026-02-25 | 예산: 정규화 테이블                              | budget_allocations 별도 테이블. 다통화/다국가 확장 대비. 환율 스냅샷 저장                                                                                |
-| 2026-02-25 | POI 이름: name+nameLocal+locale                  | 표시용(name) + 현지어(nameLocal) + 로케일. City는 curated라 3컬럼(ko/en/local)                                                                           |
-| 2026-02-25 | DB 네이밍: SnakeNamingStrategy                   | 커스텀 구현 (~30줄). TypeORM camelCase → PostgreSQL snake_case 자동 변환                                                                                 |
-| 2026-02-25 | 삭제 전략: User만 soft delete                    | Trip은 hard delete + status로 비즈니스 상태 관리. email unique 제약 유지                                                                                 |
-| 2026-02-25 | 마이그레이션 CLI: dist 경로 사용                 | ts-node의 .js→.ts 리졸브 문제 회피. 빌드 후 dist/ 참조                                                                                                   |
-| 2026-02-25 | PR 머지: squash + 브랜치 삭제                    | main 히스토리 깔끔 유지. 머지 후 feature 브랜치 즉시 삭제                                                                                                |
-| 2026-02-26 | 공간 쿼리: geography 타입 유지                   | 1km 반경 20ms 이내 달성. geometry 전환 불필요. .claude/plans/t03-spatial-query.md                                                                        |
-| 2026-02-26 | 공간 인덱스: 단일 GiST 유지                      | GiST + 기존 B-tree 조합으로 충분. 복합 인덱스 불필요. 10만건 이상 시 재검토                                                                              |
-| 2026-02-26 | 반경 검색: 2km 이상 시 필터 필수                 | 2km 무필터 262ms vs 필터 26ms. 서비스 레이어에서 category 필터 강제                                                                                      |
-| 2026-02-28 | 텍스트 검색: tsvector→pg_trgm                    | CJK 언어 토큰화 불가. pg_trgm은 언어 무관. .claude/plans/t04-poi-search.md                                                                               |
-| 2026-02-28 | pg_trgm 인덱스: GIN 선택                         | GIN이 ILIKE/similarity 2~3배 우수. GiST KNN은 city_id 필터 후 장점 없음                                                                                  |
-| 2026-02-28 | S3 키워드+반경: 쿼리 분리 권장                   | ST_DWithin+ILIKE 조합 70ms. 서비스에서 반경/텍스트 분리 쿼리 후 조합                                                                                     |
-| 2026-02-28 | POI 보강: Foursquare 탈락                        | Premium 무료 티어 없음, Google과 동일 캐싱 제한, Phase 2/3 마이그레이션 리스크                                                                           |
-| 2026-02-28 | Google Places: Maps JS API Places Library        | 브라우저용(Maps JS API)과 서버용(Places REST)은 별개 API. 클라이언트→Google Edge 직접이 RTT 최소화                                                       |
-| 2026-02-28 | API 키 보안: 다층 방어                           | Referrer 제한만 불충분. API 제한 + 일일 캡 + Firebase App Check(reCAPTCHA) 적용. 키 분리 필수                                                            |
-| 2026-02-28 | place_id 저장: fire & forget                     | 클라이언트가 비동기 PATCH. POI별 공유 → 커뮤니티 캐시 효과. 실패 시 다음 유저 재매칭                                                                     |
-| 2026-02-28 | Railway 리전: 싱가포르                           | 일본→SG ~50-70ms. 클라이언트 직접 Google 호출이 여전히 우위                                                                                              |
-| 2026-02-28 | 인증: Google + Kakao 소셜 로그인만               | 비밀번호 저장 안 함. 한국인 타겟이라 Kakao 필수 + Google 글로벌 표준. Apple은 Phase 2                                                                    |
-| 2026-02-28 | 가입 벽: AI 루트 생성 시점                       | 탐색~POI 선택까지 비로그인 허용. AI 루트 생성부터 로그인 필수 (LLM API 비용 추적 + 사용량 제한). 딥링크 수수료는 비로그인도 발생                         |
-| 2026-02-28 | place_id PATCH: 비로그인 허용                    | 멱등성(최초 1회만 저장) + 포맷 검증(non-empty, 불투명 문자열)으로 구조적 안전. rate limit 불필요                                                         |
-| 2026-02-28 | OSM 파이프라인: UPSERT + 비활성화 감지           | ON CONFLICT DO UPDATE. last_synced_at으로 삭제된 POI 감지 → is_active=false. 하드 삭제 안 함                                                             |
-| 2026-02-28 | 이름 우선순위: name:ko 최우선                    | MVP 한국어 사용자 대상. name:ko > name:en > name > name:ja. 향후 로케일별 우선순위 확장 가능                                                             |
-| 2026-02-28 | opening_hours: raw 문자열 보존                   | OSM opening_hours 복잡한 형식. MVP는 { raw, parsed: false } jsonb 저장. 고급 파싱은 향후 처리                                                            |
-| 2026-03-01 | T06 분리: 항공(T06a) / 숙소(T06b)                | 숙소 API는 제휴 승인 필요(Agoda/Booking). 항공은 즉시 시작 가능(Amadeus+Travelpayouts). PRD 여정상 항공이 선행                                           |
-| 2026-03-01 | 항공 딥링크: Travelpayouts 우선                  | Kiwi 5만 MAU 요구로 MVP 비현실적. Travelpayouts 진입장벽 낮음, 수수료 100% 패스스루                                                                      |
-| 2026-03-01 | 캐싱: 인메모리 우선                              | ADR에 따라 Redis는 동시 사용자 증가 시 도입. MVP는 @nestjs/cache-manager 기본 store로 시작                                                               |
-| 2026-03-02 | 딥링크: Aviasales compact URL + tp.media         | `search.aviasales.com/flights/`와 `/searches/new` 모두 리다이렉트 실패. `aviasales.com/?params=` compact 포맷 사용. tp.media/r로 어필리에이트 추적       |
-| 2026-03-02 | Aviasales locale: 자동 감지                      | compact URL은 locale/currency 파라미터 미지원. ko/KRW도 Aviasales 미지원. 브라우저 기반 자동 감지(en/USD) 사용                                           |
-| 2026-03-02 | CI: GitHub Actions (lint+build+test)             | PR/push 시 자동 실행. path filter로 backend 변경분만 트리거. Railway "Wait for CI" 연동                                                                  |
-| 2026-03-02 | 마이그레이션: Railway preDeployCommand           | entrypoint.sh 대신 Railway 공식 preDeployCommand 사용. 실패 시 배포 자체 중단. 앱 시작과 분리                                                            |
-| 2026-03-02 | Docker: 4-stage 빌드 패턴                        | pnpm monorepo에서 husky prepare가 prod install 시 실패. prod-deps 별도 단계 + --ignore-scripts 적용. pnpm 공식 Docker 가이드 기반                        |
-| 2026-03-02 | T20 선행: CI/CD 우선 구축                        | T06a 완료 후 배포 파이프라인 부재. 이후 태스크 배포 검증을 위해 인프라 선행                                                                              |
-| 2026-03-02 | 프론트: Vite SPA (Next.js 탈락)                  | SPA 셸 통째 캐싱으로 오프라인 퍼스트 자연스러움. SSR은 SW와 충돌(하이드레이션, RSC 캐싱). 번들 ~42KB vs ~92KB. 백엔드 이미 NestJS로 존재                 |
-| 2026-03-02 | 라우팅: TanStack Router                          | search params Zod 검증+타입 추론, hover 프리페칭(`defaultPreload: 'intent'`), TanStack Query 네이티브 통합. 여행 검색 URL 파라미터 다수라 타입 안전 필수 |
-| 2026-03-02 | 서버 상태: TanStack Query + 3층 캐싱             | 인메모리→IndexedDB 영속→SW(Workbox) 3층 구조. `networkMode: 'offlineFirst'`, 오프라인 뮤테이션 일시정지+재개. 해외 제한된 데이터 대응                    |
-| 2026-03-02 | PWA: vite-plugin-pwa (Workbox)                   | Vite 네이티브 통합, generateSW 제로 설정. 런타임 캐싱(CacheFirst/NetworkFirst) API별 전략 분리. MVP 후 injectManifest 전환 가능                          |
-| 2026-03-03 | 숙소 제휴: MVP에서 제외                          | Travelpayouts에서 Agoda/Booking/Hotels.com/Expedia 등 숙소 제휴 반려 (트래픽 부족). 숙소 검색은 제휴 없이 일반 링크로 구현, 트래픽 확보 후 재신청        |
-| 2026-03-03 | Travelpayouts 사용 가능: Aviasales, Kiwi, Klook  | 항공(Aviasales) 유지, Klook(투어/액티비티) 활용 가능. 숙소 수익화는 Phase 2로 이연                                                                       |
-| 2026-03-05 | 바텀 네비: 4탭 구성                              | 탐색 / 플래닝 / 내 여행 / 마이. 탐색(비로그인 핵심), 플래닝(가이드 퍼널), 내 여행(로그인 필요), 마이(프로필/설정)                                        |
-| 2026-03-05 | 탐색: 도시 중심 구조                             | 도시 카드 목록 → 도시 상세(항공\|POI\|숙소 스와이프 탭 + 터치 전환). 도시 안에서 모든 정보 탐색. 비로그인 자유 접근                                      |
-| 2026-03-05 | 플래닝: 7단계 순차 퍼널                          | 예산→도시추천→도시선택/항공→POI선택→AI루트→숙소→총금액. 순차 뒤로가기만 허용. 탐색에서 "여행 만들기" 시 도시 프리필 진입                                 |
-| 2026-03-05 | 퍼널 중간 저장: 로컬만                           | 퍼널 도중 이탈 시 로컬 저장으로 복귀 가능. DB 저장은 퍼널 완료(Trip 생성) 시점에만. 정합성 문제 회피                                                     |
-| 2026-03-05 | 폰트: Pretendard JP Variable (CDN)               | 한글+일본어+영문 통합 가변 폰트. tnum 기본 활성(가격/날짜). jsDelivr CDN + preconnect. SW 캐싱은 T15c                                                    |
-| 2026-03-05 | 브랜드 컬러: Teal 600 oklch 기반                 | `--primary` Teal 교체 + `--brand-50~950` 팔레트. Tailwind `bg-brand-600/80` 패턴. 다크모드 MVP 제외                                                      |
-| 2026-03-05 | 레이아웃: `_app.tsx` 패스리스 레이아웃           | AppLayout(헤더+바텀네비) 감싼 패스리스 라우트. URL에 `_app` 미노출. 4탭 하위 라우트 `_app/` 디렉토리                                                     |
-| 2026-03-05 | PWA: generateSW + autoUpdate                     | generateSW 제로 설정. T14 Web Push 시 injectManifest 전환. autoUpdate로 사용자 개입 없이 SW 갱신                                                         |
-| 2026-03-05 | 런타임 캐싱: Pretendard JP 폰트만                | jsDelivr CDN CacheFirst 1년. API/이미지 캐싱은 각 화면 구현 시 결정. 앱 설치는 브라우저 기본 UI만                                                        |
-| 2026-03-05 | Vercel SW 캐시: 배포 후 확인 원칙                | sw.js에 장기 Cache-Control 설정 시 vercel.json 헤더 오버라이드. 배포 후 Network 탭 확인                                                                  |
-| 2026-03-07 | 최저가 소스: Travelpayouts 단독                  | Travelpayouts Data API v3 `/aviasales/v3/get_latest_prices` (v2 deprecated). Amadeus Flight Inspiration Search는 Test 환경 500 에러로 fallback 제외      |
-| 2026-03-07 | 최저가 캐싱: 인메모리 3시간                      | Travelpayouts 원본 48시간 캐시 대비 3시간 TTL. ICN+GMP 2회 호출, 캐싱 후 3시간간 추가 호출 없음                                                          |
-| 2026-03-07 | 복수 출발지: ICN + GMP                           | 두 공항 조회 후 도시별 최저가 선택. Promise.all 병렬 호출                                                                                                |
-| 2026-03-07 | 도시 이미지: Unsplash 로컬 조회 → 마이그레이션   | 스크립트로 1회 조회, URL+attribution 하드코딩. 런타임 API 호출 없음. attribution 구조화 저장(authorName+authorUrl)                                       |
-| 2026-03-07 | iataCityCode 컬럼 분리                           | 공항코드(iataCodes)와 도시코드(iataCityCode) 분리. 외부 API는 도시코드 반환. Airport 엔티티 분리는 국내선 지원 시 검토                                   |
-| 2026-03-07 | Travelpayouts 커버리지 한계                      | 한국발 일본행 데이터 부족(FUK만). 러시아 기반 구조적 한계. 최저가 소스 추가 검토 필요(Kiwi Tequila 등). 서비스 교체 가능한 설계                          |
-| 2026-03-08 | 스와이프 카드: embla-carousel (shadcn Carousel)  | shadcn/ui 내부 의존성으로 추가 번들 없음(~15KB). 양방향 스와이프 + 닷 인디케이터. 브라우저 edge swipe 충돌 방지 내장                                     |
-| 2026-03-08 | 데이터 페칭: useQuery 2개 독립                   | cities 먼저 렌더 + 가격은 스켈레톤으로 점진 로딩. Promise.all 대비 UX 우수(하나가 느려도 나머지 먼저 표시). cities staleTime: Infinity, prices: 30분     |
-| 2026-03-08 | 이미지 URL: 프론트 트랜스폼                      | DB URL 그대로 유지, 프론트 유틸에서 w=640 + auto=format 변환. DB 수정 불필요. 화면별 최적 사이즈 유연 적용                                               |
-| 2026-03-08 | 비활성 버튼: 토스트 피드백                       | 항공편 검색/POI 탐색/여행 계획 버튼 배치 + shadcn Sonner 토스트 "준비 중이에요". T23(항공편 검색) 구현 시 해당 버튼 활성화                               |
-| 2026-03-08 | 도시 정렬: nameKo ASC (가나다순)                 | sortOrder 컬럼 불필요 — 등차수열 유지 안 되면 문제 발생. 가나다순이 사용자 예상과 일치. 백엔드 현행 유지                                                 |
-| 2026-03-08 | 카드 높이: min(3:4 비율, 가용 높이)              | 세로 스크롤 없는 방향. aspect-ratio 3:4 기본 + 가용 높이 제한. CLS 방지를 위한 고정 컨테이너                                                             |
-| 2026-03-10 | 카드 레이아웃: 이미지/정보 분리                  | 이미지 카드(3:4 + max-h) 위에는 attribution만, 아래에 도시명+가격+버튼 배치. 그라디언트 오버레이 제거. 키 큰 기기에서 하단 공백 해소                     |
-| 2026-03-10 | CORS: 프로젝트 한정 RegExp                       | `/\.vercel\.app$/` 범용 패턴은 타 프로젝트 요청도 허용. `nomad-pilot-frontend` 프로젝트명 포함 RegExp로 범위 제한                                        |
-| 2026-03-10 | Sonner: next-themes 제거, light 고정             | Vite+React 환경에서 next-themes 불필요. 다크모드 MVP 제외이므로 `theme="light"` 하드코딩. top-center + closeButton                                       |
-| 2026-03-10 | main 레이아웃: flex 컨테이너화                   | `<main>`에 `flex flex-col` 추가. 자식 라우트가 `flex-1`로 가용 높이를 채울 수 있도록 허용                                                                |
+| 날짜       | 결정                                             | 근거                                                                                                                                                           |
+| ---------- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-02-12 | 서빙 형식: PWA                                   | 진입장벽 최소화, 오프라인 지원, 해외 즉시 접근                                                                                                                 |
+| 2026-02-12 | 문서 관리: .claude/ 내부                         | 코드와 문서 분리, docs/ + plans/ 구조, CLAUDE.md 허브 방식                                                                                                     |
+| 2026-02-12 | 방향: 최저가 여행 파일럿                         | 가치 제안 명확화, 타겟 확장, 수익화 경로 다양화                                                                                                                |
+| 2026-02-12 | MVP 1인 여행 고정                                | 그룹 복잡도 회피, DB 확장 가능 설계, 그룹은 Phase 3 유료                                                                                                       |
+| 2026-02-12 | WebSocket 전면 제거                              | REST + Web Push + Client Geofencing 대체. 해외 데이터 절약                                                                                                     |
+| 2026-02-12 | 동행자 위치: 1회 조회 방식                       | 실시간 불필요, REST 조회로 충분                                                                                                                                |
+| 2026-02-12 | 인프라: Vercel + Railway                         | Frontend $0 + Backend/DB $5/월. NestJS 학습 목적 유지                                                                                                          |
+| 2026-02-12 | MVP DB 단일화: PostgreSQL만                      | ES/Redis 스케일링 시 도입. tsvector+GIN 텍스트 검색, PostGIS 공간 검색                                                                                         |
+| 2026-02-12 | MVP 일본 한정                                    | 한국인 해외여행 1위, OSM 품질 우수, 스코프 축소. .claude/docs/feasibility-study.md                                                                             |
+| 2026-02-12 | 항공: Amadeus + Kiwi (딥링크→Travelpayouts 대체) | Amadeus(검색) 유지. Kiwi 딥링크는 2026-03-01 ADR로 Travelpayouts 대체                                                                                          |
+| 2026-02-12 | POI: OSM + Google Places                         | OSM(기본, 무료) + Google(on-demand). .claude/docs/feasibility-study.md §3                                                                                      |
+| 2026-02-12 | 개발 방식: TDD                                   | 테스트 먼저 작성 → 구현 → 리팩터. 모든 서비스/로직에 테스트 필수                                                                                               |
+| 2026-02-12 | Git: GitHub Flow                                 | main + feat/fix 브랜치. 태스크 단위 브랜치 → main 머지. develop 불필요 (1인 MVP)                                                                               |
+| 2026-02-12 | 로깅: Pino (nestjs-pino)                         | JSON 네이티브, 요청별 자동 로깅. dev: pino-pretty, prod: JSON. Railway stdout 수집                                                                             |
+| 2026-02-25 | 예산: 정규화 테이블                              | budget_allocations 별도 테이블. 다통화/다국가 확장 대비. 환율 스냅샷 저장                                                                                      |
+| 2026-02-25 | POI 이름: name+nameLocal+locale                  | 표시용(name) + 현지어(nameLocal) + 로케일. City는 curated라 3컬럼(ko/en/local)                                                                                 |
+| 2026-02-25 | DB 네이밍: SnakeNamingStrategy                   | 커스텀 구현 (~30줄). TypeORM camelCase → PostgreSQL snake_case 자동 변환                                                                                       |
+| 2026-02-25 | 삭제 전략: User만 soft delete                    | Trip은 hard delete + status로 비즈니스 상태 관리. email unique 제약 유지                                                                                       |
+| 2026-02-25 | 마이그레이션 CLI: dist 경로 사용                 | ts-node의 .js→.ts 리졸브 문제 회피. 빌드 후 dist/ 참조                                                                                                         |
+| 2026-02-25 | PR 머지: squash + 브랜치 삭제                    | main 히스토리 깔끔 유지. 머지 후 feature 브랜치 즉시 삭제                                                                                                      |
+| 2026-02-26 | 공간 쿼리: geography 타입 유지                   | 1km 반경 20ms 이내 달성. geometry 전환 불필요. .claude/plans/t03-spatial-query.md                                                                              |
+| 2026-02-26 | 공간 인덱스: 단일 GiST 유지                      | GiST + 기존 B-tree 조합으로 충분. 복합 인덱스 불필요. 10만건 이상 시 재검토                                                                                    |
+| 2026-02-26 | 반경 검색: 2km 이상 시 필터 필수                 | 2km 무필터 262ms vs 필터 26ms. 서비스 레이어에서 category 필터 강제                                                                                            |
+| 2026-02-28 | 텍스트 검색: tsvector→pg_trgm                    | CJK 언어 토큰화 불가. pg_trgm은 언어 무관. .claude/plans/t04-poi-search.md                                                                                     |
+| 2026-02-28 | pg_trgm 인덱스: GIN 선택                         | GIN이 ILIKE/similarity 2~3배 우수. GiST KNN은 city_id 필터 후 장점 없음                                                                                        |
+| 2026-02-28 | S3 키워드+반경: 쿼리 분리 권장                   | ST_DWithin+ILIKE 조합 70ms. 서비스에서 반경/텍스트 분리 쿼리 후 조합                                                                                           |
+| 2026-02-28 | POI 보강: Foursquare 탈락                        | Premium 무료 티어 없음, Google과 동일 캐싱 제한, Phase 2/3 마이그레이션 리스크                                                                                 |
+| 2026-02-28 | Google Places: Maps JS API Places Library        | 브라우저용(Maps JS API)과 서버용(Places REST)은 별개 API. 클라이언트→Google Edge 직접이 RTT 최소화                                                             |
+| 2026-02-28 | API 키 보안: 다층 방어                           | Referrer 제한만 불충분. API 제한 + 일일 캡 + Firebase App Check(reCAPTCHA) 적용. 키 분리 필수                                                                  |
+| 2026-02-28 | place_id 저장: fire & forget                     | 클라이언트가 비동기 PATCH. POI별 공유 → 커뮤니티 캐시 효과. 실패 시 다음 유저 재매칭                                                                           |
+| 2026-02-28 | Railway 리전: 싱가포르                           | 일본→SG ~50-70ms. 클라이언트 직접 Google 호출이 여전히 우위                                                                                                    |
+| 2026-02-28 | 인증: Google + Kakao 소셜 로그인만               | 비밀번호 저장 안 함. 한국인 타겟이라 Kakao 필수 + Google 글로벌 표준. Apple은 Phase 2                                                                          |
+| 2026-02-28 | 가입 벽: AI 루트 생성 시점                       | 탐색~POI 선택까지 비로그인 허용. AI 루트 생성부터 로그인 필수 (LLM API 비용 추적 + 사용량 제한). 딥링크 수수료는 비로그인도 발생                               |
+| 2026-02-28 | place_id PATCH: 비로그인 허용                    | 멱등성(최초 1회만 저장) + 포맷 검증(non-empty, 불투명 문자열)으로 구조적 안전. rate limit 불필요                                                               |
+| 2026-02-28 | OSM 파이프라인: UPSERT + 비활성화 감지           | ON CONFLICT DO UPDATE. last_synced_at으로 삭제된 POI 감지 → is_active=false. 하드 삭제 안 함                                                                   |
+| 2026-02-28 | 이름 우선순위: name:ko 최우선                    | MVP 한국어 사용자 대상. name:ko > name:en > name > name:ja. 향후 로케일별 우선순위 확장 가능                                                                   |
+| 2026-02-28 | opening_hours: raw 문자열 보존                   | OSM opening_hours 복잡한 형식. MVP는 { raw, parsed: false } jsonb 저장. 고급 파싱은 향후 처리                                                                  |
+| 2026-03-01 | T06 분리: 항공(T06a) / 숙소(T06b)                | 숙소 API는 제휴 승인 필요(Agoda/Booking). 항공은 즉시 시작 가능(Amadeus+Travelpayouts). PRD 여정상 항공이 선행                                                 |
+| 2026-03-01 | 항공 딥링크: Travelpayouts 우선                  | Kiwi 5만 MAU 요구로 MVP 비현실적. Travelpayouts 진입장벽 낮음, 수수료 100% 패스스루                                                                            |
+| 2026-03-01 | 캐싱: 인메모리 우선                              | ADR에 따라 Redis는 동시 사용자 증가 시 도입. MVP는 @nestjs/cache-manager 기본 store로 시작                                                                     |
+| 2026-03-02 | 딥링크: Aviasales compact URL + tp.media         | `search.aviasales.com/flights/`와 `/searches/new` 모두 리다이렉트 실패. `aviasales.com/?params=` compact 포맷 사용. tp.media/r로 어필리에이트 추적             |
+| 2026-03-02 | Aviasales locale: 자동 감지                      | compact URL은 locale/currency 파라미터 미지원. ko/KRW도 Aviasales 미지원. 브라우저 기반 자동 감지(en/USD) 사용                                                 |
+| 2026-03-02 | CI: GitHub Actions (lint+build+test)             | PR/push 시 자동 실행. path filter로 backend 변경분만 트리거. Railway "Wait for CI" 연동                                                                        |
+| 2026-03-02 | 마이그레이션: Railway preDeployCommand           | entrypoint.sh 대신 Railway 공식 preDeployCommand 사용. 실패 시 배포 자체 중단. 앱 시작과 분리                                                                  |
+| 2026-03-02 | Docker: 4-stage 빌드 패턴                        | pnpm monorepo에서 husky prepare가 prod install 시 실패. prod-deps 별도 단계 + --ignore-scripts 적용. pnpm 공식 Docker 가이드 기반                              |
+| 2026-03-02 | T20 선행: CI/CD 우선 구축                        | T06a 완료 후 배포 파이프라인 부재. 이후 태스크 배포 검증을 위해 인프라 선행                                                                                    |
+| 2026-03-02 | 프론트: Vite SPA (Next.js 탈락)                  | SPA 셸 통째 캐싱으로 오프라인 퍼스트 자연스러움. SSR은 SW와 충돌(하이드레이션, RSC 캐싱). 번들 ~42KB vs ~92KB. 백엔드 이미 NestJS로 존재                       |
+| 2026-03-02 | 라우팅: TanStack Router                          | search params Zod 검증+타입 추론, hover 프리페칭(`defaultPreload: 'intent'`), TanStack Query 네이티브 통합. 여행 검색 URL 파라미터 다수라 타입 안전 필수       |
+| 2026-03-02 | 서버 상태: TanStack Query + 3층 캐싱             | 인메모리→IndexedDB 영속→SW(Workbox) 3층 구조. `networkMode: 'offlineFirst'`, 오프라인 뮤테이션 일시정지+재개. 해외 제한된 데이터 대응                          |
+| 2026-03-02 | PWA: vite-plugin-pwa (Workbox)                   | Vite 네이티브 통합, generateSW 제로 설정. 런타임 캐싱(CacheFirst/NetworkFirst) API별 전략 분리. MVP 후 injectManifest 전환 가능                                |
+| 2026-03-03 | 숙소 제휴: MVP에서 제외                          | Travelpayouts에서 Agoda/Booking/Hotels.com/Expedia 등 숙소 제휴 반려 (트래픽 부족). 숙소 검색은 제휴 없이 일반 링크로 구현, 트래픽 확보 후 재신청              |
+| 2026-03-03 | Travelpayouts 사용 가능: Aviasales, Kiwi, Klook  | 항공(Aviasales) 유지, Klook(투어/액티비티) 활용 가능. 숙소 수익화는 Phase 2로 이연                                                                             |
+| 2026-03-05 | 바텀 네비: 4탭 구성                              | 탐색 / 플래닝 / 내 여행 / 마이. 탐색(비로그인 핵심), 플래닝(가이드 퍼널), 내 여행(로그인 필요), 마이(프로필/설정)                                              |
+| 2026-03-05 | 탐색: 도시 중심 구조                             | 도시 카드 목록 → 도시 상세(항공\|POI\|숙소 스와이프 탭 + 터치 전환). 도시 안에서 모든 정보 탐색. 비로그인 자유 접근                                            |
+| 2026-03-05 | 플래닝: 7단계 순차 퍼널                          | 예산→도시추천→도시선택/항공→POI선택→AI루트→숙소→총금액. 순차 뒤로가기만 허용. 탐색에서 "여행 만들기" 시 도시 프리필 진입                                       |
+| 2026-03-05 | 퍼널 중간 저장: 로컬만                           | 퍼널 도중 이탈 시 로컬 저장으로 복귀 가능. DB 저장은 퍼널 완료(Trip 생성) 시점에만. 정합성 문제 회피                                                           |
+| 2026-03-05 | 폰트: Pretendard JP Variable (CDN)               | 한글+일본어+영문 통합 가변 폰트. tnum 기본 활성(가격/날짜). jsDelivr CDN + preconnect. SW 캐싱은 T15c                                                          |
+| 2026-03-05 | 브랜드 컬러: Teal 600 oklch 기반                 | `--primary` Teal 교체 + `--brand-50~950` 팔레트. Tailwind `bg-brand-600/80` 패턴. 다크모드 MVP 제외                                                            |
+| 2026-03-05 | 레이아웃: `_app.tsx` 패스리스 레이아웃           | AppLayout(헤더+바텀네비) 감싼 패스리스 라우트. URL에 `_app` 미노출. 4탭 하위 라우트 `_app/` 디렉토리                                                           |
+| 2026-03-05 | PWA: generateSW + autoUpdate                     | generateSW 제로 설정. T14 Web Push 시 injectManifest 전환. autoUpdate로 사용자 개입 없이 SW 갱신                                                               |
+| 2026-03-05 | 런타임 캐싱: Pretendard JP 폰트만                | jsDelivr CDN CacheFirst 1년. API/이미지 캐싱은 각 화면 구현 시 결정. 앱 설치는 브라우저 기본 UI만                                                              |
+| 2026-03-05 | Vercel SW 캐시: 배포 후 확인 원칙                | sw.js에 장기 Cache-Control 설정 시 vercel.json 헤더 오버라이드. 배포 후 Network 탭 확인                                                                        |
+| 2026-03-07 | 최저가 소스: Travelpayouts 단독                  | Travelpayouts Data API v3 `/aviasales/v3/get_latest_prices` (v2 deprecated). Amadeus Flight Inspiration Search는 Test 환경 500 에러로 fallback 제외            |
+| 2026-03-07 | 최저가 캐싱: 인메모리 3시간                      | Travelpayouts 원본 48시간 캐시 대비 3시간 TTL. ICN+GMP 2회 호출, 캐싱 후 3시간간 추가 호출 없음                                                                |
+| 2026-03-07 | 복수 출발지: ICN + GMP                           | 두 공항 조회 후 도시별 최저가 선택. Promise.all 병렬 호출                                                                                                      |
+| 2026-03-07 | 도시 이미지: Unsplash 로컬 조회 → 마이그레이션   | 스크립트로 1회 조회, URL+attribution 하드코딩. 런타임 API 호출 없음. attribution 구조화 저장(authorName+authorUrl)                                             |
+| 2026-03-07 | iataCityCode 컬럼 분리                           | 공항코드(iataCodes)와 도시코드(iataCityCode) 분리. 외부 API는 도시코드 반환. Airport 엔티티 분리는 국내선 지원 시 검토                                         |
+| 2026-03-07 | Travelpayouts 커버리지 한계                      | 한국발 일본행 데이터 부족(FUK만). 러시아 기반 구조적 한계. 최저가 소스 추가 검토 필요(Kiwi Tequila 등). 서비스 교체 가능한 설계                                |
+| 2026-03-08 | 스와이프 카드: embla-carousel (shadcn Carousel)  | shadcn/ui 내부 의존성으로 추가 번들 없음(~15KB). 양방향 스와이프 + 닷 인디케이터. 브라우저 edge swipe 충돌 방지 내장                                           |
+| 2026-03-08 | 데이터 페칭: useQuery 2개 독립                   | cities 먼저 렌더 + 가격은 스켈레톤으로 점진 로딩. Promise.all 대비 UX 우수(하나가 느려도 나머지 먼저 표시). cities staleTime: Infinity, prices: 30분           |
+| 2026-03-08 | 이미지 URL: 프론트 트랜스폼                      | DB URL 그대로 유지, 프론트 유틸에서 w=640 + auto=format 변환. DB 수정 불필요. 화면별 최적 사이즈 유연 적용                                                     |
+| 2026-03-08 | 비활성 버튼: 토스트 피드백                       | 항공편 검색/POI 탐색/여행 계획 버튼 배치 + shadcn Sonner 토스트 "준비 중이에요". T23(항공편 검색) 구현 시 해당 버튼 활성화                                     |
+| 2026-03-08 | 도시 정렬: nameKo ASC (가나다순)                 | sortOrder 컬럼 불필요 — 등차수열 유지 안 되면 문제 발생. 가나다순이 사용자 예상과 일치. 백엔드 현행 유지                                                       |
+| 2026-03-08 | 카드 높이: min(3:4 비율, 가용 높이)              | 세로 스크롤 없는 방향. aspect-ratio 3:4 기본 + 가용 높이 제한. CLS 방지를 위한 고정 컨테이너                                                                   |
+| 2026-03-10 | 카드 레이아웃: 이미지/정보 분리                  | 이미지 카드(3:4 + max-h) 위에는 attribution만, 아래에 도시명+가격+버튼 배치. 그라디언트 오버레이 제거. 키 큰 기기에서 하단 공백 해소                           |
+| 2026-03-10 | CORS: 프로젝트 한정 RegExp                       | `/\.vercel\.app$/` 범용 패턴은 타 프로젝트 요청도 허용. `nomad-pilot-frontend` 프로젝트명 포함 RegExp로 범위 제한                                              |
+| 2026-03-10 | Sonner: next-themes 제거, light 고정             | Vite+React 환경에서 next-themes 불필요. 다크모드 MVP 제외이므로 `theme="light"` 하드코딩. top-center + closeButton                                             |
+| 2026-03-10 | main 레이아웃: flex 컨테이너화                   | `<main>`에 `flex flex-col` 추가. 자식 라우트가 `flex-1`로 가용 높이를 채울 수 있도록 허용                                                                      |
+| 2026-03-11 | Kiwi Tequila 탈락                                | 2024년부터 초대 기반 파트너십 전환. 가입 페이지 존재하나 실제 상호작용 불가. Amadeus 단독 + Skyscanner 위젯 보완 전략으로 전환                                 |
+| 2026-03-11 | 항공 검색: Amadeus 유연한 날짜 전략              | Amadeus는 정확한 날짜만 지원. 백엔드에서 날짜 조합 생성(주말: 금/토, 월: 매주 금/토) → 병렬 호출 → merge. ICN+GMP 2개 출발지 × 날짜 조합                       |
+| 2026-03-11 | Skyscanner 위젯: 커버리지 보완                   | Amadeus 결과 하단에 Simple Flight Search Widget 배치. 빈 결과 시 크게 노출. affiliate 미가입 상태에서도 동작, 5,000 UV 달성 후 Impact 신청                     |
+| 2026-03-11 | 예약 딥링크: 새 탭 + 자동 저장                   | "예약하기" 클릭 시 항공편 정보 로컬 저장 + 동시에 Aviasales 새 탭 열기. 실제 예약 확인은 사용자 수동 체크. 예약 완료 콜백 수신 불가                            |
+| 2026-03-13 | Amadeus: test → production 전환                  | test 환경은 시뮬레이션 데이터 반환 → Aviasales 딥링크 가격 정합성 불일치. production 무료 티어(1,000~10,000콜/월)로 충분. 신청 완료, 최대 72h 대기 후 env 교체 |

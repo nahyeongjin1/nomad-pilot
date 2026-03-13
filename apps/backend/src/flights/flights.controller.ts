@@ -3,6 +3,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FlightsService } from './flights.service.js';
 import { SearchFlightsDto } from './dto/search-flights.dto.js';
 import { CheapestCitiesDto } from './dto/cheapest-cities.dto.js';
+import { FlexibleSearchDto } from './dto/flexible-search.dto.js';
 import {
   FlightOfferDto,
   CheapestCitiesResponseDto,
@@ -41,6 +42,27 @@ export class FlightsController {
       returnDate: dto.returnDate,
       adults: dto.adults ?? 1,
       maxPerCity: dto.maxPerCity ?? 3,
+    });
+  }
+
+  @Get('flexible-search')
+  @ApiOperation({
+    summary: 'Flexible flight search with date range and nights',
+  })
+  @ApiOkResponse({ type: [FlightOfferDto] })
+  async flexibleSearch(
+    @Query() dto: FlexibleSearchDto,
+  ): Promise<FlightOfferDto[]> {
+    const origins = (dto.origins ?? 'ICN,GMP').split(',').map((s) => s.trim());
+    return this.flightsService.flexibleSearch({
+      origins,
+      destinationCityId: dto.destination,
+      dateFrom: dto.dateFrom,
+      dateTo: dto.dateTo,
+      nightsFrom: dto.nightsFrom,
+      nightsTo: dto.nightsTo,
+      adults: dto.adults ?? 1,
+      maxResults: dto.maxResults ?? 20,
     });
   }
 
