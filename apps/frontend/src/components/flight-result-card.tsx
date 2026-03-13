@@ -27,9 +27,10 @@ export function FlightResultCard({ offer }: FlightResultCardProps) {
   function handleBook() {
     // Save to localStorage for "My trips" (MVP)
     try {
-      const saved = JSON.parse(
+      const raw = JSON.parse(
         localStorage.getItem('saved-flights') ?? '[]',
-      ) as FlightOfferDto[];
+      ) as unknown;
+      const saved = Array.isArray(raw) ? (raw as FlightOfferDto[]) : [];
       const exists = saved.some((f) => f.deeplink === offer.deeplink);
       if (!exists) {
         saved.unshift(offer);
@@ -39,7 +40,7 @@ export function FlightResultCard({ offer }: FlightResultCardProps) {
         );
       }
     } catch {
-      // Ignore localStorage errors
+      // Ignore localStorage errors (quota, corrupt data, etc.)
     }
 
     // Open deeplink in new tab
@@ -56,7 +57,7 @@ export function FlightResultCard({ offer }: FlightResultCardProps) {
       </div>
 
       <div className="mt-2 text-sm text-muted-foreground">
-        {firstSeg && lastSeg && (
+        {outbound && firstSeg && lastSeg && (
           <>
             <p>
               {formatDateShort(firstSeg.departureAt.slice(0, 10))}

@@ -3,7 +3,10 @@
  */
 
 function toDateStr(d: Date): string {
-  return d.toISOString().slice(0, 10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
 }
 
 /** Get next occurrence of a weekday (0=Sun..6=Sat) from a given date */
@@ -58,7 +61,7 @@ export function monthToDateRange(year: number, month: number): DateRange {
 }
 
 /**
- * Generate selectable months: from current month + 1, up to 6 months ahead.
+ * Generate selectable months: from current month, up to 6 months ahead.
  */
 export function getSelectableMonths(
   today: Date = new Date(),
@@ -111,7 +114,10 @@ export function formatDateShort(dateStr: string): string {
 export function formatDuration(isoDuration: string): string {
   const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?/);
   if (!match) return isoDuration;
-  const hours = match[1] ?? '0';
-  const minutes = match[2] ?? '0';
-  return minutes !== '0' ? `${hours}h${minutes}m` : `${hours}h`;
+  const hours = match[1];
+  const minutes = match[2];
+  if (hours && minutes) return `${hours}h${minutes}m`;
+  if (hours) return `${hours}h`;
+  if (minutes) return `${minutes}m`;
+  return isoDuration;
 }

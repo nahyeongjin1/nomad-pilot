@@ -18,7 +18,9 @@ export class FlexibleSearchDto {
   })
   @IsOptional()
   @IsString()
-  @Transform(({ value }) => (value as string).toUpperCase())
+  @Transform(({ value }) =>
+    value != null ? (value as string).toUpperCase() : undefined,
+  )
   origins?: string;
 
   @ApiProperty({

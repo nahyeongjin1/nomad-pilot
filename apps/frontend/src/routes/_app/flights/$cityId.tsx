@@ -57,13 +57,16 @@ function FlightSearchPage() {
 
   // Compute approximate Skyscanner dates from search params
   const skyscannerOutbound = searchDates?.dateFrom;
-  const skyscannerInbound = searchDates
-    ? (() => {
-        const d = new Date(searchDates.dateFrom + 'T00:00:00');
-        d.setDate(d.getDate() + searchDates.nightsFrom);
-        return d.toISOString().slice(0, 10);
-      })()
-    : undefined;
+  // TODO: React Compiler 도입 시 useMemo 제거
+  const skyscannerInbound = useMemo(() => {
+    if (!searchDates) return undefined;
+    const d = new Date(searchDates.dateFrom + 'T00:00:00');
+    d.setDate(d.getDate() + searchDates.nightsFrom);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }, [searchDates]);
 
   const destinationIata = city?.iataCodes[0] ?? 'NRT';
 

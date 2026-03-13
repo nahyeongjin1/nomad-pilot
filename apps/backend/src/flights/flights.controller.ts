@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FlightsService } from './flights.service.js';
 import { SearchFlightsDto } from './dto/search-flights.dto.js';
@@ -53,6 +53,9 @@ export class FlightsController {
   async flexibleSearch(
     @Query() dto: FlexibleSearchDto,
   ): Promise<FlightOfferDto[]> {
+    if (dto.nightsFrom > dto.nightsTo) {
+      throw new BadRequestException('nightsFrom must be <= nightsTo');
+    }
     const origins = (dto.origins ?? 'ICN,GMP').split(',').map((s) => s.trim());
     return this.flightsService.flexibleSearch({
       origins,

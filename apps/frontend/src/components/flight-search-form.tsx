@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Search, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -39,7 +39,8 @@ export function FlightSearchForm({
   const [period, setPeriod] = useState<PeriodSelection | null>(null);
   const [nightsIdx, setNightsIdx] = useState<number | null>(null);
 
-  const selectableMonths = getSelectableMonths();
+  // TODO: React Compiler 도입 시 useMemo 제거
+  const selectableMonths = useMemo(() => getSelectableMonths(), []);
 
   const canSearch = period !== null && nightsIdx !== null && !isSearching;
 
