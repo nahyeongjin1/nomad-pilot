@@ -84,37 +84,55 @@ function FlightSearchPage() {
         </h1>
       </div>
 
+      {/* City not found */}
+      {cities && !city && (
+        <div className="mt-8 text-center">
+          <p className="font-medium">도시를 찾을 수 없습니다</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            잘못된 경로이거나 삭제된 도시입니다
+          </p>
+          <Link to="/">
+            <Button variant="outline" className="mt-4">
+              <ArrowLeft className="size-4" />
+              돌아가기
+            </Button>
+          </Link>
+        </div>
+      )}
+
       {/* Search form */}
-      <div className="mt-4">
-        {hasSearched && formCollapsed ? (
-          <Button
-            variant="outline"
-            className="w-full justify-between"
-            onClick={() => setFormCollapsed(false)}
-          >
-            검색 조건 수정
-            <ChevronDown className="size-4" />
-          </Button>
-        ) : (
-          <div className="rounded-xl border bg-card p-4 shadow-sm">
-            {hasSearched && (
-              <div className="mb-3 flex justify-end">
-                <Button
-                  size="icon-xs"
-                  variant="ghost"
-                  onClick={() => setFormCollapsed(true)}
-                >
-                  <ChevronUp className="size-4" />
-                </Button>
-              </div>
-            )}
-            <FlightSearchForm
-              onSearch={handleSearch}
-              isSearching={flightSearch.isPending}
-            />
-          </div>
-        )}
-      </div>
+      {(!cities || city) && (
+        <div className="mt-4">
+          {hasSearched && formCollapsed ? (
+            <Button
+              variant="outline"
+              className="w-full justify-between"
+              onClick={() => setFormCollapsed(false)}
+            >
+              검색 조건 수정
+              <ChevronDown className="size-4" />
+            </Button>
+          ) : (
+            <div className="rounded-xl border bg-card p-4 shadow-sm">
+              {hasSearched && (
+                <div className="mb-3 flex justify-end">
+                  <Button
+                    size="icon-xs"
+                    variant="ghost"
+                    onClick={() => setFormCollapsed(true)}
+                  >
+                    <ChevronUp className="size-4" />
+                  </Button>
+                </div>
+              )}
+              <FlightSearchForm
+                onSearch={handleSearch}
+                isSearching={flightSearch.isPending}
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Results */}
       {hasSearched && (

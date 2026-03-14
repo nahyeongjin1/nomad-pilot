@@ -147,6 +147,31 @@ describe('FlightsController', () => {
       });
     });
 
+    it('should throw BadRequestException when nightsFrom > nightsTo', async () => {
+      await expect(
+        controller.flexibleSearch({
+          destination: 'city-1',
+          dateFrom: '2026-03-13',
+          dateTo: '2026-03-14',
+          nightsFrom: 5,
+          nightsTo: 2,
+        }),
+      ).rejects.toThrow('nightsFrom must be <= nightsTo');
+    });
+
+    it('should throw BadRequestException when origins are all empty', async () => {
+      await expect(
+        controller.flexibleSearch({
+          origins: ',',
+          destination: 'city-1',
+          dateFrom: '2026-03-13',
+          dateTo: '2026-03-14',
+          nightsFrom: 1,
+          nightsTo: 2,
+        }),
+      ).rejects.toThrow('origins must include at least one IATA code');
+    });
+
     it('should default origins to ICN,GMP when not provided', async () => {
       flightsService.flexibleSearch.mockResolvedValue([]);
 

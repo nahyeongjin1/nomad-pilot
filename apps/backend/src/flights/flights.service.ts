@@ -216,6 +216,7 @@ export class FlightsService {
       where: { id: destinationCityId },
     });
     if (!city) {
+      this.logger.warn(`City not found for ID: ${destinationCityId}`);
       return [];
     }
     const destinationCodes = city.iataCodes;
