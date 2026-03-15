@@ -56,6 +56,14 @@ export class FlightsController {
     if (dto.nightsFrom > dto.nightsTo) {
       throw new BadRequestException('nightsFrom must be <= nightsTo');
     }
+    const daySpan =
+      (new Date(dto.dateTo).getTime() - new Date(dto.dateFrom).getTime()) /
+      (1000 * 60 * 60 * 24);
+    if (daySpan < 0 || daySpan > 30) {
+      throw new BadRequestException(
+        'dateFrom~dateTo range must be between 0 and 30 days',
+      );
+    }
     const origins = (dto.origins ?? 'ICN,GMP')
       .split(',')
       .map((s) => s.trim())

@@ -14,8 +14,13 @@ import { useCities } from '@/hooks/use-cities';
 import { useFlightSearch } from '@/hooks/use-flight-search';
 
 export const Route = createFileRoute('/_app/flights/$cityId')({
-  component: FlightSearchPage,
+  component: FlightSearchPageWrapper,
 });
+
+function FlightSearchPageWrapper() {
+  const { cityId } = Route.useParams();
+  return <FlightSearchPage key={cityId} />;
+}
 
 function FlightSearchPage() {
   const { cityId } = Route.useParams();
@@ -68,7 +73,8 @@ function FlightSearchPage() {
     return `${y}-${m}-${day}`;
   }, [searchDates]);
 
-  const destinationIata = city?.iataCodes[0] ?? 'NRT';
+  // city is guaranteed by the (!cities || city) and (city &&) guards in JSX
+  const destinationIata = city?.iataCodes[0] ?? null;
 
   return (
     <div className="mx-auto flex w-full max-w-lg flex-col px-4 py-4">
@@ -158,12 +164,14 @@ function FlightSearchPage() {
                 />
               ))}
               {/* Skyscanner widget at bottom */}
-              <SkyscannerWidget
-                destinationIata={destinationIata}
-                originFilter={originFilter}
-                outboundDate={skyscannerOutbound}
-                inboundDate={skyscannerInbound}
-              />
+              {destinationIata && (
+                <SkyscannerWidget
+                  destinationIata={destinationIata}
+                  originFilter={originFilter}
+                  outboundDate={skyscannerOutbound}
+                  inboundDate={skyscannerInbound}
+                />
+              )}
             </>
           ) : flightSearch.isError ? (
             <div className="py-8 text-center">
@@ -181,15 +189,17 @@ function FlightSearchPage() {
               <p className="mt-1 text-sm text-muted-foreground">
                 조건을 변경하거나 Skyscanner에서 검색해보세요
               </p>
-              <div className="mt-4">
-                <SkyscannerWidget
-                  destinationIata={destinationIata}
-                  originFilter={originFilter}
-                  outboundDate={skyscannerOutbound}
-                  inboundDate={skyscannerInbound}
-                  prominent
-                />
-              </div>
+              {destinationIata && (
+                <div className="mt-4">
+                  <SkyscannerWidget
+                    destinationIata={destinationIata}
+                    originFilter={originFilter}
+                    outboundDate={skyscannerOutbound}
+                    inboundDate={skyscannerInbound}
+                    prominent
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

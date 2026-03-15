@@ -31,6 +31,7 @@ interface FlexibleSearchParams {
   maxResults: number;
 }
 
+const FLEXIBLE_SEARCH_CONCURRENCY = 5;
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
 const LOWEST_PRICES_CACHE_TTL_MS = 3 * 60 * 60 * 1000; // 3 hours
 
@@ -233,39 +234,41 @@ export class FlightsService {
       return [];
     }
 
-    // Build all search promises with in-flight dedup
-    const searchPromises: Array<Promise<FlightOfferDto[]>> = [];
-    const inflight = new Map<string, Promise<FlightOfferDto[]>>();
+    // Build unique search tasks with in-flight dedup
+    const tasks: Array<() => Promise<FlightOfferDto[]>> = [];
+    const seenKeys = new Set<string>();
 
     for (const origin of origins) {
       for (const dest of destinationCodes) {
         for (const combo of dateCombinations) {
           const key = `${origin}:${dest}:${combo.departureDate}:${combo.returnDate}:${adults}`;
-          let promise = inflight.get(key);
-          if (!promise) {
-            promise = this.searchFlights({
+          if (seenKeys.has(key)) continue;
+          seenKeys.add(key);
+          tasks.push(() =>
+            this.searchFlights({
               origin,
               destination: dest,
               departureDate: combo.departureDate,
               returnDate: combo.returnDate,
               adults,
-              max: 3, // Limit per individual search to avoid overwhelming Amadeus
-            });
-            inflight.set(key, promise);
-          }
-          searchPromises.push(promise);
+              max: 3,
+            }),
+          );
         }
       }
     }
 
     this.logger.log(
-      `Flexible search: ${inflight.size} unique API calls for ${origins.join(',')}→${destinationCodes.join(',')}`,
+      `Flexible search: ${tasks.length} unique API calls for ${origins.join(',')}→${destinationCodes.join(',')}`,
     );
 
-    const results = await Promise.allSettled(searchPromises);
+    // Execute with concurrency limit
+    const results = await this.runWithConcurrency(
+      tasks,
+      FLEXIBLE_SEARCH_CONCURRENCY,
+    );
 
-    // Collect all successful offers, deduplicate by deeplink
-    const seen = new Set<string>();
+    // Collect all successful offers (seenKeys already prevents duplicate API calls)
     const allOffers: FlightOfferDto[] = [];
 
     for (const result of results) {
@@ -275,16 +278,39 @@ export class FlightsService {
         );
         continue;
       }
-      for (const offer of result.value) {
-        if (seen.has(offer.deeplink)) continue;
-        seen.add(offer.deeplink);
-        allOffers.push(offer);
-      }
+      allOffers.push(...result.value);
     }
 
     // Sort by price and limit
     allOffers.sort((a, b) => a.totalPrice - b.totalPrice);
     return allOffers.slice(0, maxResults);
+  }
+
+  private async runWithConcurrency<T>(
+    tasks: Array<() => Promise<T>>,
+    concurrency: number,
+  ): Promise<PromiseSettledResult<T>[]> {
+    const results: PromiseSettledResult<T>[] = [];
+    let idx = 0;
+
+    async function worker() {
+      while (idx < tasks.length) {
+        const i = idx++;
+        try {
+          const value = await tasks[i]!();
+          results[i] = { status: 'fulfilled', value };
+        } catch (reason) {
+          results[i] = { status: 'rejected', reason };
+        }
+      }
+    }
+
+    await Promise.all(
+      Array.from({ length: Math.min(concurrency, tasks.length) }, () =>
+        worker(),
+      ),
+    );
+    return results;
   }
 
   async lowestPrices(): Promise<LowestPricesResponseDto> {
