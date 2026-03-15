@@ -20,7 +20,7 @@ import type {
 } from './dto/lowest-price.dto.js';
 import { generateDateCombinations } from './utils/date-combinations.js';
 
-interface FlexibleSearchParams {
+export interface FlexibleSearchParams {
   origins: string[];
   destinationCityId: string;
   dateFrom: string;
@@ -35,7 +35,7 @@ const FLEXIBLE_SEARCH_CONCURRENCY = 5;
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
 const LOWEST_PRICES_CACHE_TTL_MS = 3 * 60 * 60 * 1000; // 3 hours
 
-interface SearchParams {
+export interface FlightSearchParams {
   origin: string;
   destination: string;
   departureDate: string;
@@ -45,7 +45,7 @@ interface SearchParams {
   max?: number;
 }
 
-interface CheapestCitiesParams {
+export interface CheapestCitiesParams {
   origin?: string;
   departureDate: string;
   returnDate?: string;
@@ -66,7 +66,7 @@ export class FlightsService {
     private readonly cityRepository: Repository<City>,
   ) {}
 
-  async searchFlights(params: SearchParams): Promise<FlightOfferDto[]> {
+  async searchFlights(params: FlightSearchParams): Promise<FlightOfferDto[]> {
     const {
       origin,
       destination,
