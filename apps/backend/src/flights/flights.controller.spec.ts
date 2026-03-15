@@ -12,6 +12,7 @@ describe('FlightsController', () => {
   let flightsService: {
     searchFlights: jest.Mock;
     cheapestCities: jest.Mock;
+    flexibleSearch: jest.Mock;
     lowestPrices: jest.Mock;
   };
 
@@ -19,6 +20,9 @@ describe('FlightsController', () => {
     {
       currency: 'KRW',
       totalPrice: 250000,
+      originAirport: 'ICN',
+      destinationAirport: 'NRT',
+      nightsInDest: null,
       itineraries: [
         {
           duration: 'PT2H30M',
@@ -60,6 +64,7 @@ describe('FlightsController', () => {
     flightsService = {
       searchFlights: jest.fn(),
       cheapestCities: jest.fn(),
+      flexibleSearch: jest.fn(),
       lowestPrices: jest.fn(),
     };
 
@@ -113,6 +118,74 @@ describe('FlightsController', () => {
         adults: 1,
         maxPerCity: 3,
       });
+    });
+  });
+
+  describe('flexibleSearch', () => {
+    it('should parse origins and call flightsService.flexibleSearch', async () => {
+      flightsService.flexibleSearch.mockResolvedValue(mockOffers);
+
+      const result = await controller.flexibleSearch({
+        origins: 'ICN,GMP',
+        destination: 'city-1',
+        dateFrom: '2026-03-13',
+        dateTo: '2026-03-14',
+        nightsFrom: 2,
+        nightsTo: 3,
+      });
+
+      expect(result).toBe(mockOffers);
+      expect(flightsService.flexibleSearch).toHaveBeenCalledWith({
+        origins: ['ICN', 'GMP'],
+        destinationCityId: 'city-1',
+        dateFrom: '2026-03-13',
+        dateTo: '2026-03-14',
+        nightsFrom: 2,
+        nightsTo: 3,
+        adults: 1,
+        maxResults: 20,
+      });
+    });
+
+    it('should throw BadRequestException when nightsFrom > nightsTo', async () => {
+      await expect(
+        controller.flexibleSearch({
+          destination: 'city-1',
+          dateFrom: '2026-03-13',
+          dateTo: '2026-03-14',
+          nightsFrom: 5,
+          nightsTo: 2,
+        }),
+      ).rejects.toThrow('nightsFrom must be <= nightsTo');
+    });
+
+    it('should throw BadRequestException when origins are all empty', async () => {
+      await expect(
+        controller.flexibleSearch({
+          origins: ',',
+          destination: 'city-1',
+          dateFrom: '2026-03-13',
+          dateTo: '2026-03-14',
+          nightsFrom: 1,
+          nightsTo: 2,
+        }),
+      ).rejects.toThrow('origins must include at least one IATA code');
+    });
+
+    it('should default origins to ICN,GMP when not provided', async () => {
+      flightsService.flexibleSearch.mockResolvedValue([]);
+
+      await controller.flexibleSearch({
+        destination: 'city-1',
+        dateFrom: '2026-03-13',
+        dateTo: '2026-03-14',
+        nightsFrom: 1,
+        nightsTo: 2,
+      });
+
+      expect(flightsService.flexibleSearch).toHaveBeenCalledWith(
+        expect.objectContaining({ origins: ['ICN', 'GMP'] }),
+      );
     });
   });
 

@@ -14,6 +14,7 @@ import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppTripsRouteImport } from './routes/_app/trips'
 import { Route as AppPlanningRouteImport } from './routes/_app/planning'
 import { Route as AppMyRouteImport } from './routes/_app/my'
+import { Route as AppFlightsCityIdRouteImport } from './routes/_app/flights/$cityId'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -39,18 +40,25 @@ const AppMyRoute = AppMyRouteImport.update({
   path: '/my',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFlightsCityIdRoute = AppFlightsCityIdRouteImport.update({
+  id: '/flights/$cityId',
+  path: '/flights/$cityId',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/my': typeof AppMyRoute
   '/planning': typeof AppPlanningRoute
   '/trips': typeof AppTripsRoute
+  '/flights/$cityId': typeof AppFlightsCityIdRoute
 }
 export interface FileRoutesByTo {
   '/my': typeof AppMyRoute
   '/planning': typeof AppPlanningRoute
   '/trips': typeof AppTripsRoute
   '/': typeof AppIndexRoute
+  '/flights/$cityId': typeof AppFlightsCityIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -59,12 +67,13 @@ export interface FileRoutesById {
   '/_app/planning': typeof AppPlanningRoute
   '/_app/trips': typeof AppTripsRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/flights/$cityId': typeof AppFlightsCityIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/my' | '/planning' | '/trips'
+  fullPaths: '/' | '/my' | '/planning' | '/trips' | '/flights/$cityId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/my' | '/planning' | '/trips' | '/'
+  to: '/my' | '/planning' | '/trips' | '/' | '/flights/$cityId'
   id:
     | '__root__'
     | '/_app'
@@ -72,6 +81,7 @@ export interface FileRouteTypes {
     | '/_app/planning'
     | '/_app/trips'
     | '/_app/'
+    | '/_app/flights/$cityId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -115,6 +125,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMyRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/flights/$cityId': {
+      id: '/_app/flights/$cityId'
+      path: '/flights/$cityId'
+      fullPath: '/flights/$cityId'
+      preLoaderRoute: typeof AppFlightsCityIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
@@ -123,6 +140,7 @@ interface AppRouteChildren {
   AppPlanningRoute: typeof AppPlanningRoute
   AppTripsRoute: typeof AppTripsRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppFlightsCityIdRoute: typeof AppFlightsCityIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -130,6 +148,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPlanningRoute: AppPlanningRoute,
   AppTripsRoute: AppTripsRoute,
   AppIndexRoute: AppIndexRoute,
+  AppFlightsCityIdRoute: AppFlightsCityIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

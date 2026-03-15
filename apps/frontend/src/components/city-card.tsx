@@ -1,4 +1,5 @@
 import { Plane, MapPin, CalendarPlus } from 'lucide-react';
+import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
@@ -27,6 +28,7 @@ const handleComingSoon = () => {
 };
 
 export function CityCard({ city, price, priceLoading, index }: CityCardProps) {
+  const navigate = useNavigate();
   const imageUrl = city.imageUrl ? optimizeImageUrl(city.imageUrl) : null;
   const isEager = index === 0;
 
@@ -97,7 +99,12 @@ export function CityCard({ city, price, priceLoading, index }: CityCardProps) {
           size="sm"
           variant="outline"
           className="flex-1 active:scale-95 transition-transform"
-          onClick={handleComingSoon}
+          onClick={() => {
+            void navigate({
+              to: '/flights/$cityId',
+              params: { cityId: city.id },
+            });
+          }}
         >
           <Plane className="size-4" />
           항공편

@@ -18,7 +18,20 @@ import type {
   CityLowestPriceDto,
   LowestPricesResponseDto,
 } from './dto/lowest-price.dto.js';
+import { generateDateCombinations } from './utils/date-combinations.js';
 
+interface FlexibleSearchParams {
+  origins: string[];
+  destinationCityId: string;
+  dateFrom: string;
+  dateTo: string;
+  nightsFrom: number;
+  nightsTo: number;
+  adults: number;
+  maxResults: number;
+}
+
+const FLEXIBLE_SEARCH_CONCURRENCY = 5;
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutes
 const LOWEST_PRICES_CACHE_TTL_MS = 3 * 60 * 60 * 1000; // 3 hours
 
@@ -185,6 +198,121 @@ export class FlightsService {
     };
   }
 
+  async flexibleSearch(
+    params: FlexibleSearchParams,
+  ): Promise<FlightOfferDto[]> {
+    const {
+      origins,
+      destinationCityId,
+      dateFrom,
+      dateTo,
+      nightsFrom,
+      nightsTo,
+      adults,
+      maxResults,
+    } = params;
+
+    // Resolve city ID → IATA codes
+    const city = await this.cityRepository.findOne({
+      where: { id: destinationCityId },
+    });
+    if (!city) {
+      this.logger.warn(`City not found for ID: ${destinationCityId}`);
+      return [];
+    }
+    const destinationCodes = city.iataCodes;
+
+    // Generate date combinations (Friday/Saturday departures)
+    const dateCombinations = generateDateCombinations(
+      dateFrom,
+      dateTo,
+      nightsFrom,
+      nightsTo,
+    );
+
+    if (dateCombinations.length === 0) {
+      return [];
+    }
+
+    // Build unique search tasks with in-flight dedup
+    const tasks: Array<() => Promise<FlightOfferDto[]>> = [];
+    const seenKeys = new Set<string>();
+
+    for (const origin of origins) {
+      for (const dest of destinationCodes) {
+        for (const combo of dateCombinations) {
+          const key = `${origin}:${dest}:${combo.departureDate}:${combo.returnDate}:${adults}`;
+          if (seenKeys.has(key)) continue;
+          seenKeys.add(key);
+          tasks.push(() =>
+            this.searchFlights({
+              origin,
+              destination: dest,
+              departureDate: combo.departureDate,
+              returnDate: combo.returnDate,
+              adults,
+              max: 3,
+            }),
+          );
+        }
+      }
+    }
+
+    this.logger.log(
+      `Flexible search: ${tasks.length} unique API calls for ${origins.join(',')}→${destinationCodes.join(',')}`,
+    );
+
+    // Execute with concurrency limit
+    const results = await this.runWithConcurrency(
+      tasks,
+      FLEXIBLE_SEARCH_CONCURRENCY,
+    );
+
+    // Collect all successful offers (seenKeys already prevents duplicate API calls)
+    const allOffers: FlightOfferDto[] = [];
+
+    for (const result of results) {
+      if (result.status === 'rejected') {
+        this.logger.warn(
+          `Flexible search call failed: ${String(result.reason)}`,
+        );
+        continue;
+      }
+      allOffers.push(...result.value);
+    }
+
+    // Sort by price and limit
+    allOffers.sort((a, b) => a.totalPrice - b.totalPrice);
+    return allOffers.slice(0, maxResults);
+  }
+
+  private async runWithConcurrency<T>(
+    tasks: Array<() => Promise<T>>,
+    concurrency: number,
+  ): Promise<PromiseSettledResult<T>[]> {
+    const results: PromiseSettledResult<T>[] = [];
+    let idx = 0;
+
+    async function worker() {
+      while (idx < tasks.length) {
+        const i = idx++;
+        try {
+          const value = await tasks[i]!();
+          results[i] = { status: 'fulfilled', value };
+        } catch (reason) {
+          results[i] = { status: 'rejected', reason };
+        }
+      }
+    }
+
+    await Promise.all(
+      Array.from({ length: Math.min(concurrency, tasks.length) }, () =>
+        worker(),
+      ),
+    );
+    return results;
+  }
+
   async lowestPrices(): Promise<LowestPricesResponseDto> {
     const origins = ['ICN', 'GMP'];
     const cacheKey = `lowest-prices:${[...origins].sort().join(',')}`;
@@ -291,33 +419,49 @@ export class FlightsService {
   ): FlightOfferDto[] {
     const carriers = response.dictionaries?.carriers ?? {};
 
-    return response.data.map((offer) => ({
-      currency: offer.price.currency,
-      totalPrice: parseFloat(offer.price.total),
-      itineraries: offer.itineraries.map((itinerary) => ({
-        duration: itinerary.duration,
-        segments: itinerary.segments.map((segment) => ({
-          departureAirport: segment.departure.iataCode,
-          departureAt: segment.departure.at,
-          departureTerminal: segment.departure.terminal,
-          arrivalAirport: segment.arrival.iataCode,
-          arrivalAt: segment.arrival.at,
-          arrivalTerminal: segment.arrival.terminal,
-          carrierCode: segment.carrierCode,
-          carrierName: carriers[segment.carrierCode],
-          flightNumber: segment.number,
-          duration: segment.duration,
-          numberOfStops: segment.numberOfStops,
+    return response.data.map((offer) => {
+      const departureDate = params.departureDate;
+      const returnDate = params.returnDate;
+      let nightsInDest: number | null = null;
+      if (returnDate) {
+        const dep = new Date(departureDate);
+        const ret = new Date(returnDate);
+        nightsInDest = Math.round(
+          (ret.getTime() - dep.getTime()) / (1000 * 60 * 60 * 24),
+        );
+      }
+
+      return {
+        currency: offer.price.currency,
+        totalPrice: parseFloat(offer.price.total),
+        originAirport: params.origin,
+        destinationAirport: params.destination,
+        nightsInDest,
+        itineraries: offer.itineraries.map((itinerary) => ({
+          duration: itinerary.duration,
+          segments: itinerary.segments.map((segment) => ({
+            departureAirport: segment.departure.iataCode,
+            departureAt: segment.departure.at,
+            departureTerminal: segment.departure.terminal,
+            arrivalAirport: segment.arrival.iataCode,
+            arrivalAt: segment.arrival.at,
+            arrivalTerminal: segment.arrival.terminal,
+            carrierCode: segment.carrierCode,
+            carrierName: carriers[segment.carrierCode],
+            flightNumber: segment.number,
+            duration: segment.duration,
+            numberOfStops: segment.numberOfStops,
+          })),
         })),
-      })),
-      airlines: offer.validatingAirlineCodes,
-      deeplink: this.deeplinkService.buildDeeplink({
-        origin: params.origin,
-        destination: params.destination,
-        departureDate: params.departureDate,
-        returnDate: params.returnDate,
-        adults: params.adults,
-      }),
-    }));
+        airlines: offer.validatingAirlineCodes,
+        deeplink: this.deeplinkService.buildDeeplink({
+          origin: params.origin,
+          destination: params.destination,
+          departureDate: params.departureDate,
+          returnDate: params.returnDate,
+          adults: params.adults,
+        }),
+      };
+    });
   }
 }

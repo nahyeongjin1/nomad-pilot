@@ -50,6 +50,18 @@ export class FlightOfferDto {
   @ApiProperty({ example: 250000 })
   totalPrice!: number;
 
+  @ApiProperty({ example: 'ICN', description: 'Origin airport IATA code' })
+  originAirport!: string;
+
+  @ApiProperty({ example: 'NRT', description: 'Destination airport IATA code' })
+  destinationAirport!: string;
+
+  @ApiPropertyOptional({
+    example: 2,
+    description: 'Nights in destination (null for one-way)',
+  })
+  nightsInDest!: number | null;
+
   @ApiProperty({ type: [ItineraryDto] })
   itineraries!: ItineraryDto[];
 
