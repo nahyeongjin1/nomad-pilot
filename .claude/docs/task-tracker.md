@@ -46,7 +46,7 @@
 | T15b | 레이아웃 + 디자인 시스템 (shadcn/ui + Tailwind) | ✅   | .claude/plans/t15b-layout-design.md   |
 | T15c | PWA 기초 설정 (manifest, SW, 앱 설치)           | ✅   | .claude/plans/t15c-pwa-setup.md       |
 | T22  | 도시 탐색 화면                                  | ✅   | .claude/plans/t22-city-explore.md     |
-| T23  | 항공편 검색 화면                                | 🔄   | .claude/plans/t23-flight-search-ui.md |
+| T23  | 항공편 검색 화면                                | ✅   | .claude/plans/t23-flight-search-ui.md |
 | T16  | 지도 + POI 탐색 화면                            | ⬜   | -                                     |
 
 ## Monetization

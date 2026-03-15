@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-interface DeeplinkParams {
+export interface DeeplinkParams {
   origin: string;
   destination: string;
   departureDate: string;

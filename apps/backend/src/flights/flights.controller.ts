@@ -1,6 +1,11 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { FlightsService } from './flights.service.js';
+import {
+  FlightsService,
+  type FlightSearchParams,
+  type CheapestCitiesParams,
+  type FlexibleSearchParams,
+} from './flights.service.js';
 import { SearchFlightsDto } from './dto/search-flights.dto.js';
 import { CheapestCitiesDto } from './dto/cheapest-cities.dto.js';
 import { FlexibleSearchDto } from './dto/flexible-search.dto.js';
@@ -19,7 +24,7 @@ export class FlightsController {
   @ApiOperation({ summary: 'Search flight offers for a specific route' })
   @ApiOkResponse({ type: [FlightOfferDto] })
   async search(@Query() dto: SearchFlightsDto): Promise<FlightOfferDto[]> {
-    return this.flightsService.searchFlights({
+    const params: FlightSearchParams = {
       origin: dto.origin,
       destination: dto.destination,
       departureDate: dto.departureDate,
@@ -27,7 +32,8 @@ export class FlightsController {
       adults: dto.adults ?? 1,
       nonStop: dto.nonStop ?? false,
       max: dto.max ?? 5,
-    });
+    };
+    return this.flightsService.searchFlights(params);
   }
 
   @Get('cheapest-cities')
@@ -36,13 +42,14 @@ export class FlightsController {
   async cheapestCities(
     @Query() dto: CheapestCitiesDto,
   ): Promise<CheapestCitiesResponseDto> {
-    return this.flightsService.cheapestCities({
+    const params: CheapestCitiesParams = {
       origin: dto.origin ?? 'ICN',
       departureDate: dto.departureDate,
       returnDate: dto.returnDate,
       adults: dto.adults ?? 1,
       maxPerCity: dto.maxPerCity ?? 3,
-    });
+    };
+    return this.flightsService.cheapestCities(params);
   }
 
   @Get('flexible-search')
@@ -73,7 +80,7 @@ export class FlightsController {
         'origins must include at least one IATA code',
       );
     }
-    return this.flightsService.flexibleSearch({
+    const params: FlexibleSearchParams = {
       origins,
       destinationCityId: dto.destination,
       dateFrom: dto.dateFrom,
@@ -82,7 +89,8 @@ export class FlightsController {
       nightsTo: dto.nightsTo,
       adults: dto.adults ?? 1,
       maxResults: dto.maxResults ?? 20,
-    });
+    };
+    return this.flightsService.flexibleSearch(params);
   }
 
   @Get('lowest-prices')

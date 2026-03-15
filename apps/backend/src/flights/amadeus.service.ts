@@ -13,7 +13,7 @@ import type {
   AmadeusTokenResponse,
 } from './interfaces/amadeus.interfaces.js';
 
-interface SearchParams {
+export interface AmadeusSearchParams {
   origin: string;
   destination: string;
   departureDate: string;
@@ -58,7 +58,7 @@ export class AmadeusService {
   }
 
   async searchFlightOffers(
-    params: SearchParams,
+    params: AmadeusSearchParams,
   ): Promise<AmadeusFlightOffersResponse> {
     try {
       return await this.doSearch(params);
@@ -77,7 +77,7 @@ export class AmadeusService {
   }
 
   private async doSearch(
-    params: SearchParams,
+    params: AmadeusSearchParams,
   ): Promise<AmadeusFlightOffersResponse> {
     const token = await this.getToken();
     const {
