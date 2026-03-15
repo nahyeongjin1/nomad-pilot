@@ -269,7 +269,12 @@ export class FlightsService {
     const allOffers: FlightOfferDto[] = [];
 
     for (const result of results) {
-      if (result.status !== 'fulfilled') continue;
+      if (result.status === 'rejected') {
+        this.logger.warn(
+          `Flexible search call failed: ${String(result.reason)}`,
+        );
+        continue;
+      }
       for (const offer of result.value) {
         if (seen.has(offer.deeplink)) continue;
         seen.add(offer.deeplink);

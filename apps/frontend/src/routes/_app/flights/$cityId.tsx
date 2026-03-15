@@ -74,11 +74,11 @@ function FlightSearchPage() {
     <div className="mx-auto flex w-full max-w-lg flex-col px-4 py-4">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <Link to="/">
-          <Button size="icon-sm" variant="ghost">
+        <Button size="icon-sm" variant="ghost" aria-label="뒤로 가기" asChild>
+          <Link to="/">
             <ArrowLeft className="size-5" />
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <h1 className="text-lg font-bold">
           {city ? `${city.nameKo} 항공편 검색` : '항공편 검색'}
         </h1>
@@ -91,12 +91,12 @@ function FlightSearchPage() {
           <p className="mt-1 text-sm text-muted-foreground">
             잘못된 경로이거나 삭제된 도시입니다
           </p>
-          <Link to="/">
-            <Button variant="outline" className="mt-4">
+          <Button variant="outline" className="mt-4" asChild>
+            <Link to="/">
               <ArrowLeft className="size-4" />
               돌아가기
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
       )}
 
@@ -119,6 +119,7 @@ function FlightSearchPage() {
                   <Button
                     size="icon-xs"
                     variant="ghost"
+                    aria-label="검색 폼 접기"
                     onClick={() => setFormCollapsed(true)}
                   >
                     <ChevronUp className="size-4" />
@@ -135,7 +136,7 @@ function FlightSearchPage() {
       )}
 
       {/* Results */}
-      {hasSearched && (
+      {hasSearched && city && (
         <div className="mt-5 space-y-4">
           {/* Origin filter */}
           {offers && offers.length > 0 && (
