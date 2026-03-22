@@ -7,4 +7,5 @@ ignoredBuiltDependencies:
   - unrs-resolver
 
 onlyBuiltDependencies:
+  - '@scarf/scarf'
   - esbuild
